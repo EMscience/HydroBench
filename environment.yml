@@ -10,7 +10,6 @@ dependencies:
   - ipywidgets
   - joblib
   - tqdm
-  - datetime
   - pickle
   - xarry
   - numcodecs
