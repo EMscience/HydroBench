@@ -6,8 +6,8 @@
 
 #### Data
 - contains two outpus of the [NHM-PRMS](https://pubs.er.usgs.gov/publication/tm6B9) model results at the HJ Andrews Watershed, OR
-	1. CalibratedHJAndrew.txt -- Calibrated model output
-	2. UnCalibratedHJAndrew.txt -- Uncalibrated model output
+	1. CalibratedHJAndrew.txt -- Calibrated NHM-PRMS model output data
+	2. UnCalibratedHJAndrew.txt -- Uncalibrated NHM-PRMS model output data
 
 #### Scripts
 	- Widgets_NHM_PRMS_Benchmarking_at_HJAndrews.ipynb -- the main notebook demonstrating the implimentation of info-flow based model benchmarking.
