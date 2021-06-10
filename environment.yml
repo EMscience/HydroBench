@@ -1,0 +1,19 @@
+name: NHM_PRMS_Benchmarking_Widgets
+
+dependencies:
+  - python=3.7.1
+  - numpy
+  - scipy
+  - matplotlib
+  - pandas
+  - scikit-learn
+  - ipywidgets
+  - joblib
+  - tqdm
+  - datetime
+  - pickle
+  - xarry
+  - numcodecs
+  - zarr
+  - holoviews
+  - bokeh
