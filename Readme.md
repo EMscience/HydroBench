@@ -3,7 +3,7 @@
 ## Information flow based Model Benchmarking
 ### File Description
 #### Data
-- contains two outpus of NHM-PRMS model output at the HJ Andrews Watershed, OR
+- contains two outpus of the NHM-PRMS [link to Google!](http://google.com) model results at the HJ Andrews Watershed, OR
 	1. CalibratedHJAndrew.txt -- Calibrated model output
 	2. UnCalibratedHJAndrew.txt -- Uncalibrated model output
 
