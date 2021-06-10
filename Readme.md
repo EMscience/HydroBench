@@ -18,8 +18,9 @@
 	3. Info-flow based model internal functions using process networks (PN)
 	4. Sensitivity of Info-flow metrics computation
 
-#### Folders
-Functions -- contains local routines 
+#### Functions 
+
+- contains local routines 
 
 	- plottingUtilities_Widget.py -- contains the interactive widget plot utilities
 	- PN1_5_RoutineSource.py -- contains utilities of the main info-flow routines
