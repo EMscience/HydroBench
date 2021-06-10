@@ -10,8 +10,6 @@ dependencies:
   - ipywidgets
   - joblib
   - tqdm
-  - pickle
-  - xarry
   - numcodecs
   - zarr
   - holoviews
