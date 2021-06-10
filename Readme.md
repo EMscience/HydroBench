@@ -1,9 +1,11 @@
 [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/EMscience/NHM_PRMS_Bechmarking/HEAD)
 
-## Inforation flow based Model Benchmarking
+## Information flow based Model Benchmarking
 ### File Description
 #### Data
-
+- contains two outpus of NHM-PRMS model output at the HJ Andrews Watershed, OR
+	1. CalibratedHJAndrew.txt -- Calibrated model output
+	2. UnCalibratedHJAndrew.txt -- Uncalibrated model output
 
 #### Scripts
 	* Widgets_NHM_PRMS_Benchmarking_at_HJAndrews.ipynb -- the main notebook demonstrating the implimentation of info-flow based model benchmarking.
