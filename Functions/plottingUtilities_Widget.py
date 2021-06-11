@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 import datetime as dt
 import matplotlib.pyplot as plt
+from termcolor import colored
 
 import holoviews as hv
 from holoviews import opts, dim
@@ -13,6 +14,9 @@ from PN1_5_RoutineSource import *
 from ProcessNetwork1_5MainRoutine_sourceCode import *
 
 # For a single case
+
+pathData = (r"./Data/")
+pathResult = (r"./Result/")
 
 def CouplingAndInfoFlowPlot(optsHJ,popts):
     
@@ -188,7 +192,7 @@ def plotPerformanceTradeoff(lag, RCalib, modelVersion):
     
     
     
-def NSE(o,s, k): # computes both NSE and logNSE
+def NSE2(o,s, k): # computes both NSE and logNSE
     NSE = 1 - sum((s-o)**2)/sum((o-np.mean(o))**2)
     
     logS = o + k
@@ -271,4 +275,65 @@ def generateChordPlots2(R,optLag,optsHJ,modelVersion):
         cmap='Category10', edge_cmap='Category10', width=500, height=500)
     
     show(hv.render(chord_Cal) )
+    
+def NSE(ModelVersion, PerformanceMetrics): # computes both NSE and logNSE
+    Log_factor = 0.1
+    WatershadeID = 110111
+    
+    if ModelVersion == 'Calibrated':
+        CalibMat = np.loadtxt(pathData+'CalibratedHJAndrew.txt',delimiter='\t') # cross validate with matlab
+        observed_Q = CalibMat[:,0]
+        model_Q = CalibMat[:,4]
+        
+               
+        fig, ax1 = plt.subplots(figsize=[15,5])
+
+        ax2 = ax1.twinx()
+        ax1.plot(observed_Q, 'k', label= 'Observed stream flow')
+        ax1.plot(model_Q, 'r', label = 'Model stream flow')
+        
+        ax2.plot(CalibMat[:,1], 'b-',label = 'Basin precipitation estimate')
+        ax2.invert_yaxis()
+
+        ax1.set_xlabel('Days Since January 1980')
+        ax1.set_ylabel('Stream flow (cfs)',color='k')
+        ax2.set_ylabel('Precipitation (in)', color='b')
+        ax1.legend(loc='center', bbox_to_anchor=(0.85, 1.2))
+        ax2.legend(loc='center', bbox_to_anchor=(0.5, 1.2))
+        ax1.grid(linestyle='-.')
+        
+    if ModelVersion == 'Uncalibrated':
+        UnCalibMat = np.loadtxt(pathData+ 'UnCalibratedHJAndrews.txt',delimiter='\t') # cross validate with matlab
+        observed_Q = UnCalibMat[:,0]
+        model_Q = UnCalibMat[:,4]
+        
+        fig, ax1 = plt.subplots(figsize=[15,5])
+
+        ax2 = ax1.twinx()
+        ax1.plot(observed_Q, 'k', label= 'Observed Stream flow')
+        ax1.plot(model_Q, 'r', label = 'Model Stream flow')
+        
+        ax2.plot(UnCalibMat[:,1], 'b-', label = 'Basin precipitation estimate')
+        ax2.invert_yaxis()
+
+        ax1.set_xlabel('Days Since January 1980')
+        ax1.set_ylabel('Stream flow (cfs)',color='k')
+        ax2.set_ylabel('Precipitation (in)', color='b')
+        ax1.legend(loc='center', bbox_to_anchor=(0.85, 1.2))
+        ax2.legend(loc='center', bbox_to_anchor=(0.5, 1.2))
+        ax1.grid(linestyle='-.')
+
+        
+    if PerformanceMetrics == 'Untransformed':
+        NSE = 1 - sum((model_Q - observed_Q)**2)/sum((observed_Q - np.mean(observed_Q))**2)
+        return print(colored(text = ['NSE of the', ModelVersion, 'model is = ', np.round(NSE,3)], 
+                             color='green', attrs=['reverse', 'blink']) )
+    
+    if PerformanceMetrics == 'Logarithmic':
+        logS = observed_Q + Log_factor
+        logO = model_Q + Log_factor
+        logNSE =  1 - sum((logS - logO)**2)/sum((logO-np.mean(logO))**2)
+        return print(colored(text = ['logNSE of the', ModelVersion, 'model is = ', np.round(logNSE,3)], 
+                             color='green', attrs=['reverse', 'blink']) )
+    # plot hydrograph
     
