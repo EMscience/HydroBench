@@ -4,7 +4,7 @@
 
 Hydrological model performance is commonly evaluated based on different statistical metrics e.g., 
 the Nash Sutcliffe coefficient ([NSE](https://en.wikipedia.org/wiki/Nash%E2%80%93Sutcliffe_model_efficiency_coefficient)). 
-However,these metrics do not reveal model functional performances, such as how different flux and store variables interact 
+However, these metrics do not reveal model functional performances, such as how different flux and store variables interact 
 within the model. As such, they are poor in model diagnostics and fail to indicate whether the model is right for the right 
 reason. In contrast, information theoretic metrics are capable of revealing model internal functions and their tradeoffs with
 predictive performance. In this, notebook we demonstrate the use of interactive and reproducible computation of information 
@@ -43,3 +43,4 @@ Out of the CONUS wide NHM-PRMS products, this notebook focused on the NHM-PRMS p
 	- PN1_5_RoutineSource.py -- contains utilities of the main info-flow routines
 	- ProcessNetwork1_5MainRoutine_sourceCode.py -- contains the main info-flow routines
 	
+ESDL @ Edom Moges edom.moges@berkeley.edu 
