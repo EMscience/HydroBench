@@ -1,5 +1,5 @@
-[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/EMscience/NHM_PRMS_Bechmarking/HEAD)
-
+[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/EMscience/NHM_PRMS_Bechmarking/HEAD)\
+Please click the above binder link to open and execute the notebook.
 ## Information flow based Model Benchmarking
 
 Hydrological model performance is commonly evaluated based on different statistical metrics e.g., 
