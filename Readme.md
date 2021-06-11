@@ -48,5 +48,5 @@ Out of the CONUS wide NHM-PRMS products, this notebook focused on the NHM-PRMS p
 *Environmental Systems Dynamics Laboratory [(ESDL)](https://www.esdlberkeley.com/) *\
 *University of California, Berkeley * \
 
-<span style="color:red">some **This is Red Bold.** text</span>
+<span style="color:red">some **This is Red Bold.** text</span> \
 <font color='red'>test blue color font</font>
