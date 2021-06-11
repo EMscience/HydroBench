@@ -46,5 +46,5 @@ Out of the CONUS wide NHM-PRMS products, this notebook focused on the NHM-PRMS p
 \
 *Edom Moges* \
 *edom.moges@berkeley.edu* \
-*Environmental Systems Dynamics Laboratory [(ESDL)](https://www.esdlberkeley.com/) *\
-*University of California, Berkeley * \
+*Environmental Systems Dynamics Laboratory [(ESDL)](https://www.esdlberkeley.com/)*\
+*University of California, Berkeley* \
