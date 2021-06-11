@@ -43,4 +43,6 @@ Out of the CONUS wide NHM-PRMS products, this notebook focused on the NHM-PRMS p
 	- PN1_5_RoutineSource.py -- contains utilities of the main info-flow routines
 	- ProcessNetwork1_5MainRoutine_sourceCode.py -- contains the main info-flow routines
 	
-ESDL @ Edom Moges edom.moges@berkeley.edu 
+Edom Moges edom.moges@berkeley.edu 
+Environmental Systems Dynamics Laboratory [(ESDL)](https://www.esdlberkeley.com/)
+University of California, Berkeley
