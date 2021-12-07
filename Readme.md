@@ -11,7 +11,7 @@ within the model. As such, they are poor in model diagnostics and fail to indica
 reason. In contrast, hydrological signatures and information theoretic metrics are capable of revealing model internal functions 
 and their tradeoffs with predictive performance. 
 
-In this, notebook we present HydroBench an interactive and reproducible hydrological benchmarking and diagnostics tool. HydroBench 
+In this notebook, we present HydroBench an interactive and reproducible hydrological benchmarking and diagnostics tool. HydroBench 
 computes not only traditional predictive performance metrics but also both hydrological signatures and information flow metrics. 
 From hydrological signatures, HydroBench includes flow duration curves,
 hydrograph recession analysis and water-balance metrics while from information theoretic analysis it computes
