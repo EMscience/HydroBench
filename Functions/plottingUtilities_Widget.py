@@ -336,4 +336,109 @@ def NSE(ModelVersion, PerformanceMetrics): # computes both NSE and logNSE
         return print(colored(text = ['logNSE of the', ModelVersion, 'model is = ', np.round(logNSE,3)], 
                              color='green', attrs=['reverse', 'blink']) )
     # plot hydrograph
+
+def plot_FDC(obs,mod,title = ['observed','model']):
+    n = len(obs)
+    sorted_array = np.sort(obs)
+    sorted_array2 = np.sort(mod)
+    # Reverse the sorted array
+    reverse_array = sorted_array[::-1]
+    reverse_array2 = sorted_array2[::-1]
+       
+    plt.plot(np.arange(1,n+1)/(n),reverse_array,'k-.',label= title[0])
+    plt.plot(np.arange(1,n+1)/(n),reverse_array2,'r-.',label= title[1])
+    plt.xlabel('Exceedence probabilty',fontsize=20)
+    plt.ylabel('Streamflow (cfs)',fontsize=20)
+    plt.yscale('log')
+    plt.grid(linestyle = '-.')
+    plt.legend()
     
+def plotRecession(ppt, Q, dateTime, title,labelP,labeltxt, season):
+    
+    # Lag in days after neglible rainfall before analysis starts
+    rainfall_lag = 1.0
+    mean_fraction = 0.001
+
+    lag = 1 
+    dt = 1.0
+    ppt = pd.Series(data=ppt,index=dateTime)
+    Q = pd.Series(data=Q,index=dateTime)
+    
+    # Lists to store q and its derivative
+    dqs = []
+    qs = []
+    years = list(set(dateTime.year))
+    years.sort()
+    meanQ = np.mean(Q)
+    for year in years:
+        # Do not loop beyond the 2016 water year, which starts in 2015
+        if year==years[-1]:
+            continue
+        if season == 'Winter':
+            
+            # Winter month recessions
+            startdate = '11-' + str(year)
+            enddate = '3-' + str(year+1)
+            rain = np.array(ppt.loc[startdate:enddate])
+            runoff = np.array(Q.loc[startdate:enddate])
+        elif season == 'Summer':
+            # Summer month recessions
+            startdate = '4-' + str(year)
+            enddate = '10-' + str(year)
+            rain = np.array(ppt.loc[startdate:enddate])
+            runoff = np.array(Q.loc[startdate:enddate])
+        else:
+            startdate = '1-' + str(year)
+            enddate = '12-' + str(year)
+            rain = np.array(ppt.loc[startdate:enddate])
+            runoff = np.array(Q.loc[startdate:enddate])
+            
+        i = lag
+
+        #print(dt)
+        while i<len(rain):
+            # Too much rain
+            #print(rain[i-lag:i+1])
+            if np.sum(dt*rain[i-lag:i+1]) > .002:
+                i+=1
+                continue
+
+            # period of negligible rainfall 
+            # Find index of next day of rainfall 
+            idx_next_rain = np.where(rain[i+1:]>0)[0]
+            if len(idx_next_rain)>0:
+                idx_next_rain = idx_next_rain[0] + (i+1)
+            else: 
+                # no more rain for this particular year
+                break
+
+            # too short of a rainless period for analysis 
+            if idx_next_rain==i+1: 
+                i += 2
+                continue
+
+            # get dq/dt going forward, not including the next day of rainfall
+            for j in range(i, idx_next_rain):
+                q_diffs = runoff[j] - runoff[j+1:idx_next_rain]
+                # print(idx_end)
+                idx_end = np.where(q_diffs>mean_fraction*meanQ)[0]
+                if len(idx_end)>0:
+                    idx_end = idx_end[0]
+                    qs.append((runoff[j] + runoff[j+idx_end+1])/2)
+                    dqs.append((runoff[j+idx_end+1]-runoff[j])/(dt*(idx_end+1)))
+                else:
+                    i = idx_next_rain + lag + 1
+                    break 
+
+            i = idx_next_rain + lag + 1
+
+    qs = np.array(qs)
+    dqs = np.array(dqs)
+    #print(dqs)
+    plt.plot(np.log(qs),np.log(-1*dqs),labelP,label=labeltxt)
+
+    plt.xlabel('log(Q)',fontsize=12)
+    plt.title(season + ' ' + title ,fontsize=12)#12
+    plt.ylabel(r'$\log \left( -\mathrm{\frac{dQ}{dt}}\right)$', color='k',fontsize=12)
+    plt.grid(linestyle='-.')
+    plt.legend()

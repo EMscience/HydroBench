@@ -2,7 +2,7 @@
 
 Please click the above **↑↑** binder link to launch the notebook on cloud.
  
-## Information flow based Model Benchmarking
+## Information theoretic based Model Benchmarking
 
 Hydrological model performance is commonly evaluated based on different statistical metrics e.g., 
 the Nash Sutcliffe coefficient ([NSE](https://en.wikipedia.org/wiki/Nash%E2%80%93Sutcliffe_model_efficiency_coefficient)). 
