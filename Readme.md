@@ -11,12 +11,12 @@ within the model. As such, they are poor in model diagnostics and fail to indica
 reason. In contrast, hydrological signatures and information theoretic metrics are capable of revealing model internal functions 
 and their tradeoffs with predictive performance. 
 
-In this, notebook we present HydroBench an interactive and reproducible hydroogical benchmarking and diagnostics tool that 
+In this, notebook we present HydroBench an interactive and reproducible hydrological benchmarking and diagnostics tool. HydroBench 
 computes not only traditional predictive performance metrics but also both hydrological signatures and information flow metrics. 
-From hydrological signatures, we include flow duration curves,
-hydrograph recession analysis and water-balance metrics while from information theoretic analysis we focused on
+From hydrological signatures, HydroBench includes flow duration curves,
+hydrograph recession analysis and water-balance metrics while from information theoretic analysis it computes
 [Transfer Entropy (TE)](https://en.wikipedia.org/wiki/Transfer_entropy) and 
-[Mutual Information(MI)](https://en.wikipedia.org/wiki/Mutual_information), in diagnosing model performance.
+[Mutual Information(MI)](https://en.wikipedia.org/wiki/Mutual_information), in diagnosing model functional performances.
 
 We demonstrate the application of these metrics on the the National Hydrologic Model product using the PRMS model ([NHM-PRMs]()). 
 NHM-PRMS has two model products covering the CONUS - the calibrated and uncalibrated model products. 
