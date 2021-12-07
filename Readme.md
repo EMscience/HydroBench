@@ -37,7 +37,7 @@ Out of the CONUS wide NHM-PRMS products, this notebook focused on the NHM-PRMS p
 
 
 #### Data
-- contains two outpus of the [NHM-PRMS](https://pubs.er.usgs.gov/publication/tm6B9) model results at the HJ Andrews Watershed, OR
+- Contains two example outpus of the [NHM-PRMS](https://pubs.er.usgs.gov/publication/tm6B9) model results at the HJ Andrews Watershed, OR
 	1. CalibratedHJAndrew.txt -- Calibrated NHM-PRMS model output data
 	2. UnCalibratedHJAndrew.txt -- Uncalibrated NHM-PRMS model output data
 
