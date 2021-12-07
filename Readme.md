@@ -1,6 +1,6 @@
 [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/EMscience/NHM_PRMS_Bechmarking/HEAD)
 
-Please click the above **↑↑** binder link to launch the notebook on cloud.
+Please click the above binder link to launch the notebook on cloud.
  
 ## Hydrological Model Benchmarking and Diagnostics
 
@@ -42,10 +42,9 @@ Out of the CONUS wide NHM-PRMS products, this notebook focused on the NHM-PRMS p
 	2. UnCalibratedHJAndrew.txt -- Uncalibrated NHM-PRMS model output data
 
 
-
 #### Functions 
 
-- contains local routines 
+- Contains local routines 
 
 	- plottingUtilities_Widget.py -- contains the interactive widget plot utilities for the traditional and hydrological signatures
 	- PN1_5_RoutineSource.py -- contains utilities of the main info-flow routines
