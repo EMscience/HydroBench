@@ -110,7 +110,7 @@ def CouplingAndInfoFlowPlot(optsHJ,popts):
 def extractTestStatistics(x,toVar,testStat, SigThr):
     fi = 0
     popts = {}
-    popts['testStatistic'] = testStat # Relative transfer intropy T/Hy
+    popts['testStatistic'] = testStat # Relative transfer entropy T/Hy
     popts['SigThresh'] = SigThr # significance test critical value # 
     popts['fi'] = [fi] # which file
     popts['ToVar'] = [toVar]
@@ -157,14 +157,35 @@ def generateResultStore(modelVersion,R): # Compiles the Results into a dictionar
     
     return Store
 
-
-def plotPerformanceTradeoff(lag, RCalib, modelVersion):
+def plotPerformanceTradeoff(lag, RCalib, modelVersion, WatershedName, SourceVar, SinkVar):
+    
+    Store = generateResultStore(modelVersion,RCalib)
+    
+    PerfCal = pd.DataFrame(np.ones([1,3])*np.nan,columns= ['Watershed', 
+            'Functional Performance (TEmod - TEobs)', 'Predictive Performance (1-MI)'])
+    
+    PerfCal.iloc[0,:] = WatershedName, Store[modelVersion+'_TE'][SourceVar][lag]- \
+    Store[modelVersion+'_TE_obs'][SourceVar][lag], 1 - Store[modelVersion+'_I'][SinkVar][lag]
+    
+    plt.figure(figsize=[7,5])
+    plt.scatter(PerfCal.iloc[:,1],PerfCal.iloc[:,2],color='blue', 
+            s = 50, marker = 'o', facecolors='none', edgecolors='r', label=modelVersion)
+    plt.axvline(x=0,color = 'b',ls=':', lw = 3)
+    plt.xlabel(PerfCal.columns[1], size=12)
+    plt.ylabel(PerfCal.columns[2], size = 12)
+    plt.grid(linestyle='-.')
+    plt.title('Performance tradeof at lag = ' + str(lag), size =14) 
+    plt.legend()
+    
+    
+def plotPerformanceTradeoff_old(lag, RCalib, modelVersion):
     
     Store = generateResultStore(modelVersion,RCalib)
     
     if modelVersion == 'Calibrated':
         
-        PerfCal = pd.DataFrame(np.ones([1,3])*np.nan,columns= ['Watershade', 'Functional Performance (TEmod - TEobs)', 'Predictive Performance (1-MI)'])
+        PerfCal = pd.DataFrame(np.ones([1,3])*np.nan,columns= ['Watershed', 'Functional Performance (TEmod - TEobs)', 'Predictive Performance (1-MI)'])
+        
         PerfCal.iloc[0,:] = 'HJ Andrews', Store['Calibrated_TE'].basin_ppt[lag] - Store['Calibrated_TE_obs'].basin_ppt[lag], 1 - Store['Calibrated_I'].observed_Q[lag]
 
         plt.figure(figsize=[7,5])
@@ -178,7 +199,7 @@ def plotPerformanceTradeoff(lag, RCalib, modelVersion):
         
     if modelVersion == 'Uncalibrated':
                 
-        PerfUnCal = pd.DataFrame(np.ones([1,3])*np.nan,columns= ['Watershade', 'Functional Performance (TEmod - TEobs)', 'Predictive Performance (1-MI)'])
+        PerfUnCal = pd.DataFrame(np.ones([1,3])*np.nan,columns= ['Watershed', 'Functional Performance (TEmod - TEobs)', 'Predictive Performance (1-MI)'])
         PerfUnCal.iloc[0,:] = 'HJ Andrews', Store['Uncalibrated_TE'].basin_ppt[lag] - Store['Uncalibrated_TE_obs'].basin_ppt[lag], 1 - Store['Uncalibrated_I'].observed_Q[lag]
 
         plt.figure(figsize=[7,5])
@@ -276,14 +297,14 @@ def generateChordPlots2(R,optLag,optsHJ,modelVersion):
     
     show(hv.render(chord_Cal) )
     
-def NSE(ModelVersion, PerformanceMetrics): # computes both NSE and logNSE
+def PredictivePerformance(ModelVersion, PerformanceMetrics, MetricTransformation, nameFCalib, nameFunCalib, obsQCol, modQCol): # computes both NSE and logNSE
     Log_factor = 0.1
-    WatershadeID = 110111
+
     
     if ModelVersion == 'Calibrated':
-        CalibMat = np.loadtxt(pathData+'CalibratedHJAndrew.txt',delimiter='\t') # cross validate with matlab
-        observed_Q = CalibMat[:,0]
-        model_Q = CalibMat[:,4]
+        CalibMat = np.loadtxt(pathData + nameFCalib, delimiter='\t') # cross validate with matlab
+        observed_Q = CalibMat[:,obsQCol]
+        model_Q = CalibMat[:,modQCol]
         
                
         fig, ax1 = plt.subplots(figsize=[15,5])
@@ -303,9 +324,9 @@ def NSE(ModelVersion, PerformanceMetrics): # computes both NSE and logNSE
         ax1.grid(linestyle='-.')
         
     if ModelVersion == 'Uncalibrated':
-        UnCalibMat = np.loadtxt(pathData+ 'UnCalibratedHJAndrews.txt',delimiter='\t') # cross validate with matlab
-        observed_Q = UnCalibMat[:,0]
-        model_Q = UnCalibMat[:,4]
+        UnCalibMat = np.loadtxt(pathData + nameFunCalib,delimiter='\t') # cross validate with matlab
+        observed_Q = UnCalibMat[:,obsQCol]
+        model_Q = UnCalibMat[:,modQCol]
         
         fig, ax1 = plt.subplots(figsize=[15,5])
 
@@ -323,37 +344,48 @@ def NSE(ModelVersion, PerformanceMetrics): # computes both NSE and logNSE
         ax2.legend(loc='center', bbox_to_anchor=(0.5, 1.2))
         ax1.grid(linestyle='-.')
 
-        
-    if PerformanceMetrics == 'Untransformed':
-        NSE = 1 - sum((model_Q - observed_Q)**2)/sum((observed_Q - np.mean(observed_Q))**2)
-        return print(colored(text = ['NSE of the', ModelVersion, 'model is = ', np.round(NSE,3)], 
+      
+    if MetricTransformation == 'Untransformed':
+        if PerformanceMetrics == 'NSE':
+            Pmt = 1 - sum((model_Q - observed_Q)**2)/sum((observed_Q - np.mean(observed_Q))**2)
+        if PerformanceMetrics == 'KGE':
+            Pmt = 1 - sum((model_Q - observed_Q)**2)/sum((observed_Q - np.mean(observed_Q))**2)
+        if PerformanceMetrics == 'PBIAS':
+            Pmt = 1 - sum((model_Q - observed_Q)**2)/sum((observed_Q - np.mean(observed_Q))**2)
+        if PerformanceMetrics == 'R2':
+            Pmt = 1 - sum((model_Q - observed_Q)**2)/sum((observed_Q - np.mean(observed_Q))**2)
+            
+        return print(colored(text = [PerformanceMetrics +' of the', ModelVersion, 'model is = ', np.round(Pmt,3)], 
                              color='green', attrs=['reverse', 'blink']) )
     
-    if PerformanceMetrics == 'Logarithmic':
+    if MetricTransformation == 'Logarithmic':
         logS = observed_Q + Log_factor
         logO = model_Q + Log_factor
-        logNSE =  1 - sum((logS - logO)**2)/sum((logO-np.mean(logO))**2)
-        return print(colored(text = ['logNSE of the', ModelVersion, 'model is = ', np.round(logNSE,3)], 
+        
+        if PerformanceMetrics == 'NSE':
+            Pmt =  1 - sum((logS - logO)**2)/sum((logO-np.mean(logO))**2)
+        if PerformanceMetrics == 'KGE':
+            Pmt =  1 - sum((logS - logO)**2)/sum((logO-np.mean(logO))**2)
+            
+        return print(colored(text = ['log' + PerformanceMetrics + ' of the', ModelVersion, 'model is = ', np.round(Pmt,3)], 
                              color='green', attrs=['reverse', 'blink']) )
     # plot hydrograph
 
-def plot_FDC(obs,mod,title = ['observed','model']):
-    n = len(obs)
-    sorted_array = np.sort(obs)
-    sorted_array2 = np.sort(mod)
+def plot_FDC(Q, title, colrShape, unit):
+    n = len(Q)
+    sorted_array = np.sort(Q)
+    
     # Reverse the sorted array
     reverse_array = sorted_array[::-1]
-    reverse_array2 = sorted_array2[::-1]
        
-    plt.plot(np.arange(1,n+1)/(n),reverse_array,'k-.',label= title[0])
-    plt.plot(np.arange(1,n+1)/(n),reverse_array2,'r-.',label= title[1])
+    plt.plot(np.arange(1,n+1)/(n),reverse_array,colrShape,label= title)
     plt.xlabel('Exceedence probabilty',fontsize=20)
-    plt.ylabel('Streamflow (cfs)',fontsize=20)
+    plt.ylabel('Streamflow' + unit,fontsize=20)
     plt.yscale('log')
     plt.grid(linestyle = '-.')
     plt.legend()
     
-def plotRecession(ppt, Q, dateTime, title,labelP,labeltxt, season):
+def plotRecession(ppt, Q, dateTime, title,labelP,labeltxt, season, alpha):
     
     # Lag in days after neglible rainfall before analysis starts
     rainfall_lag = 1.0
@@ -435,7 +467,7 @@ def plotRecession(ppt, Q, dateTime, title,labelP,labeltxt, season):
     qs = np.array(qs)
     dqs = np.array(dqs)
     #print(dqs)
-    plt.plot(np.log(qs),np.log(-1*dqs),labelP,label=labeltxt)
+    plt.plot(np.log(qs),np.log(-1*dqs),labelP,label=labeltxt,alpha=alpha)
 
     plt.xlabel('log(Q)',fontsize=12)
     plt.title(season + ' ' + title ,fontsize=12)#12
