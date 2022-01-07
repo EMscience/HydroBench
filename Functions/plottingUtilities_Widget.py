@@ -3,6 +3,7 @@ import numpy as np
 import datetime as dt
 import matplotlib.pyplot as plt
 from termcolor import colored
+from sklearn.metrics import r2_score
 
 import holoviews as hv
 from holoviews import opts, dim
@@ -297,6 +298,14 @@ def generateChordPlots2(R,optLag,optsHJ,modelVersion):
     
     show(hv.render(chord_Cal) )
     
+def kge(observed_Q, model_Q):
+    
+    cc = np.corrcoef(observed_Q, model_Q)[0, 1]
+    alpha = np.std(model_Q) / np.std(observed_Q)
+    beta = np.sum(model_Q) / np.sum(observed_Q)
+    return 1 - np.sqrt((cc - 1)**2 + (alpha - 1)**2 + (beta - 1)**2)
+    
+    
 def PredictivePerformance(ModelVersion, PerformanceMetrics, MetricTransformation, nameFCalib, nameFunCalib, obsQCol, modQCol): # computes both NSE and logNSE
     Log_factor = 0.1
 
@@ -349,23 +358,28 @@ def PredictivePerformance(ModelVersion, PerformanceMetrics, MetricTransformation
         if PerformanceMetrics == 'NSE':
             Pmt = 1 - sum((model_Q - observed_Q)**2)/sum((observed_Q - np.mean(observed_Q))**2)
         if PerformanceMetrics == 'KGE':
-            Pmt = 1 - sum((model_Q - observed_Q)**2)/sum((observed_Q - np.mean(observed_Q))**2)
+            Pmt = kge(observed_Q, model_Q)
         if PerformanceMetrics == 'PBIAS':
-            Pmt = 1 - sum((model_Q - observed_Q)**2)/sum((observed_Q - np.mean(observed_Q))**2)
+            Pmt = (100 * np.sum(observed_Q - model_Q, axis=0)/ np.sum(observed_Q))
         if PerformanceMetrics == 'R2':
-            Pmt = 1 - sum((model_Q - observed_Q)**2)/sum((observed_Q - np.mean(observed_Q))**2)
+            Pmt = r2_score(observed_Q, model_Q)
             
         return print(colored(text = [PerformanceMetrics +' of the', ModelVersion, 'model is = ', np.round(Pmt,3)], 
                              color='green', attrs=['reverse', 'blink']) )
     
     if MetricTransformation == 'Logarithmic':
-        logS = observed_Q + Log_factor
-        logO = model_Q + Log_factor
+        logO = observed_Q + Log_factor
+        logS = model_Q + Log_factor
         
         if PerformanceMetrics == 'NSE':
             Pmt =  1 - sum((logS - logO)**2)/sum((logO-np.mean(logO))**2)
         if PerformanceMetrics == 'KGE':
-            Pmt =  1 - sum((logS - logO)**2)/sum((logO-np.mean(logO))**2)
+            Pmt =  kge(logO, logS)
+        if PerformanceMetrics == 'PBIAS':
+            Pmt = (100 * np.sum(logO - logS, axis=0)/ np.sum(logO))
+        if PerformanceMetrics == 'R2':
+            Pmt = r2_score(logO, logS)
+            
             
         return print(colored(text = ['log' + PerformanceMetrics + ' of the', ModelVersion, 'model is = ', np.round(Pmt,3)], 
                              color='green', attrs=['reverse', 'blink']) )
@@ -474,3 +488,181 @@ def plotRecession(ppt, Q, dateTime, title,labelP,labeltxt, season, alpha):
     plt.ylabel(r'$\log \left( -\mathrm{\frac{dQ}{dt}}\right)$', color='k',fontsize=12)
     plt.grid(linestyle='-.')
     plt.legend()
+    
+    
+def AnnualRunoffCoefficient(table,StrtHydroYear,EndHydroYear,PrecipName,RunoffName):
+    yearInt = min(table.index.year)
+    yearMax = max(table.index.year)
+
+    years = np.arange(yearInt,yearMax, 1)
+    lenYear = np.count_nonzero(years)
+
+    RCoeff = np.nan*np.ones([lenYear,2])
+    
+
+    for year in years: # years
+        if StrtHydroYear == None:
+            srt = str(year) + '-10-01'
+        else:
+            srt = str(year) + str(StrtHydroYear)
+            
+        if EndHydroYear ==None:
+            end = str(year+1) + '-09-30'
+        else:
+            end = str(year+1) + EndHydroYear
+            
+        NewT = table.loc[pd.to_datetime(srt):pd.to_datetime(end),:]
+        Pyr = np.sum(NewT[str(PrecipName)])
+        Qyr = np.sum(NewT[str(RunoffName)])
+
+        RC = Qyr/Pyr #AET = Pyr - Q
+        RCoeff[year-yearInt,0] = year
+        RCoeff[year-yearInt,1] = RC
+        
+
+    StationRCoeff = np.nanmean(RCoeff[:,1])
+    
+    return  RCoeff, StationRCoeff
+
+# Time Linked FDC
+
+def histedges_equalA(x, nbin): # Equal area binning
+    pow = 0.5
+    dx = np.diff(np.sort(x))
+    tmp = np.cumsum(dx ** pow)
+    tmp = np.pad(tmp, (1, 0), 'constant')
+    return np.interp(np.linspace(0, tmp.max(), nbin + 1),tmp,np.sort(x))
+
+def histedges_equalN(x, nbin): # Equal depth binning - avoids empty bins - same frequency
+    npt = len(x)
+    return np.interp(np.linspace(0, npt, nbin + 1),np.arange(npt),np.sort(x))
+
+def histedges_equalW(x,nbin): # equal width binning
+    mn = min(x)
+    mx = max(x)
+    
+    bns = np.arange(mn,mx,(mx-mn)/nbin)
+    bns = np.r_[bns,max(x)]
+    if min(x) > 0:
+        bns[0] = min(x)/2
+    else:
+        bns[0] = bns[0]-0.1
+    return bns
+
+def FDCdiagnostics(obs,model,binSize,Flag):# Sum off-diagonals and minimize them
+    # time tag the data series and bin it to a histogram/FDC
+    comb = np.r_[obs,model]
+    if Flag ==1: # Equal Width
+        bns = histedges_equalW(comb,binSize)
+    if Flag == 2: # Equal area
+        bns = histedges_equalA(comb,binSize)
+    if Flag == 3: # Equal frequency
+        bns = histedges_equalN(comb,binSize)
+
+    #print(bns)
+    clsObs = np.nan*np.ones(len(obs))
+    clsMod = np.nan*np.ones(len(obs))
+    
+    for i in np.arange(len(bns)-1):
+        for j in np.arange(len(obs)):
+            if obs[j] > bns[i] and obs[j] <= bns[i+1]:
+                clsObs[j] = i+1
+            if model[j] > bns[i] and model[j] <= bns[i+1]:
+                clsMod[j] = i+1
+                #print(i,j)
+                
+    return clsObs, clsMod, bns
+
+def squareConfusionMatix(df_confusion,binSize):
+    # Make the matrix square 
+    SquMat = np.nan*np.ones([binSize,binSize])
+    for i in np.arange(1,binSize+1):
+        for j in np.arange(1,binSize+1):
+            #print(i,j)
+            if i in df_confusion.index:
+                if j in df_confusion.columns:
+                    SquMat[i-1,j-1] = df_confusion.loc[i,j]
+    SquMat = pd.DataFrame(data=SquMat,columns=np.arange(1,binSize+1),index=np.arange(1,binSize+1))
+    SquMat.index.name = df_confusion.index.name
+    SquMat.columns.name = df_confusion.columns.name
+    return SquMat
+
+#squareConfusionMatix(df_confusion,binSize)
+
+from mpl_toolkits.axes_grid1 import make_axes_locatable, axes_size
+
+def plot_confusion_matrix(df_confusion, bns, cmap=plt.cm.jet):#plt.cm.jet, gray_r
+    
+    extent = (0, df_confusion.shape[1], df_confusion.shape[0], 0)
+    df_confusion2 = np.ma.masked_where(df_confusion == 0.0, df_confusion)
+    cmap.set_bad(color='white')
+    im=plt.imshow(df_confusion2, cmap=cmap,extent=extent) # imshow
+      
+    
+    plt.plot(range(len(bns)),'k-.')
+    #plt.title(title)
+    tick_marksx = np.arange(len(df_confusion.columns))
+    tick_marksy = np.arange(len(df_confusion.index))
+#     plt.xticks(tick_marksx, df_confusion.columns, rotation=45)
+#     plt.yticks(tick_marksy, df_confusion.index)
+    plt.xticks(tick_marksx, np.round(bns,2), rotation=90)
+    plt.yticks(tick_marksy, np.round(bns,2))
+    plt.tight_layout()
+    plt.ylabel(df_confusion.index.name)
+    plt.xlabel(df_confusion.columns.name)
+    plt.grid()
+    
+    ax = plt.gca()
+    
+    aspect = 20
+    pad_fraction = 0.7
+    divider = make_axes_locatable(ax)
+    width = axes_size.AxesY(ax, aspect=1./aspect)
+    pad = axes_size.Fraction(pad_fraction, width)
+    cax = divider.append_axes("right", size=width, pad=pad)
+    cb=plt.colorbar(im, cax=cax)
+    cb.set_label(label='Fraction of Observed',fontsize= 12)
+    plt.show()
+    
+def plotHist(SquMat,bns,sz, title=['Observed Q', 'Model Q']):
+    fig = plt.figure(figsize=sz)
+    ax = fig.add_subplot(111)
+    ind = SquMat.index
+    width = 0.2
+    #bnsPD = pd.Series(bns).rolling(window=2).mean()[1:]
+    bnsPD = bns
+    Observed = ax.bar(ind, SquMat.sum(axis=1), width,color='black',)
+    Model = ax.bar(ind+width, SquMat.sum(axis=0), width,color='red')
+    xTickMarks = np.round(bnsPD,2)
+    ax.set_xticks(ind+width/2)
+    xtickNames = ax.set_xticklabels(xTickMarks)
+    plt.setp(xtickNames, rotation=90, fontsize=10)
+    ax.yaxis.grid(linestyle='-.')
+    ax.set_xlabel('Median value')
+    ax.set_ylabel('Frequency')
+    ## add a legend
+    ax.legend( (Observed[0], Model[0]), title )
+    plt.show()
+    
+def timeLinkedFDC(obs, mod, binSize, Flag, FigSize1, FigSize2, NameObserved, NameModel):
+    
+    # Step 1 - generate the time tagged FDC (histogram)
+    clsObs, clsMod,bns = FDCdiagnostics(obs,mod,binSize,Flag)
+    
+    # Step 2 - generate the confusion matrix 
+    Obs_Series = pd.Series(clsObs,name=str(NameObserved))
+    mod_Series = pd.Series(clsMod,name=str(NameModel))
+    df_confusion = pd.crosstab(Obs_Series, mod_Series, rownames=[str(NameObserved)], 
+                               colnames=[str(NameModel)]) # without margins
+    
+    # Step 3 - convert the confusion matrix to a square matrix
+    SquMat = squareConfusionMatix(df_confusion,binSize)
+    
+    # Step -4 Normalize the matrix and plot
+    df_conf_norm = SquMat.loc[:,SquMat.columns].div(SquMat.sum(axis=1), axis=0)
+    plt.figure(figsize=FigSize1)
+    plot_confusion_matrix(df_conf_norm,bns)
+    
+    plotHist(SquMat,bns,FigSize2,[str(NameObserved),str(NameModel)])
+
+    
