@@ -551,8 +551,15 @@ def histedges_equalW(x,nbin): # equal width binning
 
 def FDCdiagnostics(obs,model,binSize,Flag):# Sum off-diagonals and minimize them
     # time tag the data series and bin it to a histogram/FDC
+    
     # comb = np.r_[obs,model] # combined binning
-    comb = np.r_[obs, np.min(model),np.max(model)] # binning based on observed data
+    # comb = np.r_[obs, np.min(model),np.max(model)] # binning based on observed data plus model min/max
+    
+    # Folding model lowest and highest to observed min/max
+    model[model <= np.min(obs)] = np.min(obs)
+    model[model >= np.max(obs)] = np.max(obs)
+    comb = obs
+    
     if Flag ==1: # Equal Width
         bns = histedges_equalW(comb,binSize)
     if Flag == 2: # Equal area
@@ -564,14 +571,10 @@ def FDCdiagnostics(obs,model,binSize,Flag):# Sum off-diagonals and minimize them
     clsObs = np.nan*np.ones(len(obs))
     clsMod = np.nan*np.ones(len(obs))
     
-    for i in np.arange(len(bns)-1):
-        for j in np.arange(len(obs)):
-            if obs[j] > bns[i] and obs[j] <= bns[i+1]:
-                clsObs[j] = i+1
-            if model[j] > bns[i] and model[j] <= bns[i+1]:
-                clsMod[j] = i+1
-                #print(i,j)
-                
+    clsMod = np.digitize(model, bns)
+    clsObs = np.digitize(obs, bns)
+    
+
     return clsObs, clsMod, bns
 
 def squareConfusionMatix(df_confusion,binSize):
