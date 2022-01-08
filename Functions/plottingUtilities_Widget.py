@@ -551,7 +551,8 @@ def histedges_equalW(x,nbin): # equal width binning
 
 def FDCdiagnostics(obs,model,binSize,Flag):# Sum off-diagonals and minimize them
     # time tag the data series and bin it to a histogram/FDC
-    comb = np.r_[obs,model]
+    # comb = np.r_[obs,model] # combined binning
+    comb = np.r_[obs, np.min(model),np.max(model)] # binning based on observed data
     if Flag ==1: # Equal Width
         bns = histedges_equalW(comb,binSize)
     if Flag == 2: # Equal area
