@@ -179,7 +179,7 @@ def plotPerformanceTradeoff(lag, RCalib, modelVersion, WatershedName, SourceVar,
     plt.legend()
     
     
-def plotPerformanceTradeoff_old(lag, RCalib, modelVersion):
+def plotPerformanceTradeoff_Two(lag, RCalib, modelVersion):
     
     Store = generateResultStore(modelVersion,RCalib)
     
@@ -482,7 +482,8 @@ def plotRecession(ppt, Q, dateTime, title,labelP,labeltxt, season, alpha):
     dqs = np.array(dqs)
     #print(dqs)
     plt.plot(np.log(qs),np.log(-1*dqs),labelP,label=labeltxt,alpha=alpha)
-
+    #plt.scatter(np.log(qs),np.log(-1*dqs), label=labeltxt,alpha=alpha)
+    
     plt.xlabel('log(Q)',fontsize=12)
     plt.title(season + ' ' + title ,fontsize=12)#12
     plt.ylabel(r'$\log \left( -\mathrm{\frac{dQ}{dt}}\right)$', color='k',fontsize=12)
@@ -595,8 +596,9 @@ def squareConfusionMatix(df_confusion,binSize):
 
 from mpl_toolkits.axes_grid1 import make_axes_locatable, axes_size
 
-def plot_confusion_matrix(df_confusion, bns, cmap=plt.cm.jet):#plt.cm.jet, gray_r
+def plot_confusion_matrix(df_confusion, bns, ticks):
     
+    cmap=plt.cm.jet #plt.cm.jet, gray_r
     extent = (0, df_confusion.shape[1], df_confusion.shape[0], 0)
     df_confusion2 = np.ma.masked_where(df_confusion == 0.0, df_confusion)
     cmap.set_bad(color='white')
@@ -624,7 +626,7 @@ def plot_confusion_matrix(df_confusion, bns, cmap=plt.cm.jet):#plt.cm.jet, gray_
     width = axes_size.AxesY(ax, aspect=1./aspect)
     pad = axes_size.Fraction(pad_fraction, width)
     cax = divider.append_axes("right", size=width, pad=pad)
-    cb=plt.colorbar(im, cax=cax)
+    cb=plt.colorbar(im, cax=cax,ticks=ticks)
     cb.set_label(label='Fraction of Observed',fontsize= 12)
     plt.show()
     
@@ -648,7 +650,7 @@ def plotHist(SquMat,bns,sz, title=['Observed Q', 'Model Q']):
     ax.legend( (Observed[0], Model[0]), title )
     plt.show()
     
-def timeLinkedFDC(obs, mod, binSize, Flag, FigSize1, FigSize2, NameObserved, NameModel):
+def timeLinkedFDC(obs, mod, binSize, Flag, FigSize1, FigSize2, NameObserved, NameModel,ticks):
     
     # Step 1 - generate the time tagged FDC (histogram)
     clsObs, clsMod,bns = FDCdiagnostics(obs,mod,binSize,Flag)
@@ -665,7 +667,7 @@ def timeLinkedFDC(obs, mod, binSize, Flag, FigSize1, FigSize2, NameObserved, Nam
     # Step -4 Normalize the matrix and plot
     df_conf_norm = SquMat.loc[:,SquMat.columns].div(SquMat.sum(axis=1), axis=0)
     plt.figure(figsize=FigSize1)
-    plot_confusion_matrix(df_conf_norm,bns)
+    plot_confusion_matrix(df_conf_norm,bns,ticks)
     
     plotHist(SquMat,bns,FigSize2,[str(NameObserved),str(NameModel)])
 
