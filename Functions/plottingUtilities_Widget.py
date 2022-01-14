@@ -8,6 +8,7 @@ from sklearn.metrics import r2_score
 import holoviews as hv
 from holoviews import opts, dim
 from bokeh.plotting import show, output_file
+from scipy.stats import pearsonr
 hv.extension("bokeh", "matplotlib")
 
 # local 
@@ -177,6 +178,7 @@ def plotPerformanceTradeoff(lag, RCalib, modelVersion, WatershedName, SourceVar,
     plt.grid(linestyle='-.')
     plt.title('Performance tradeof at lag = ' + str(lag), size =14) 
     plt.legend()
+    return PerfCal
     
     
 def plotPerformanceTradeoff_Two(lag, RCalib, modelVersion):
@@ -265,7 +267,7 @@ def generateChordPlots(R,optLag,optsHJ,modelVersion):
 # optLag = 0 # lag time -- lag 0 is chosen as TE is max at lag 0.
 # PN_Plot, PN_Table = generateChordPlots(RCalib,optLag,optsHJ,'Calibrated') # lag=0
 
-def generateChordPlots2(R,optLag,optsHJ,modelVersion):
+def generateChordPlots2_(R,optLag,optsHJ,modelVersion):
     
     CalTR = R['TR'][0,optLag,:,:] # Calibrated, picked zero as Lag since it is max across variables
     CalibChord = pd.DataFrame(data=CalTR, columns=optsHJ['varNames'], index=optsHJ['varNames'])
@@ -361,29 +363,49 @@ def PredictivePerformance(ModelVersion, PerformanceMetrics, MetricTransformation
             Pmt = kge(observed_Q, model_Q)
         if PerformanceMetrics == 'PBIAS':
             Pmt = (100 * np.sum(observed_Q - model_Q, axis=0)/ np.sum(observed_Q))
-        if PerformanceMetrics == 'R2':
-            Pmt = r2_score(observed_Q, model_Q)
+        if PerformanceMetrics == 'r2':
+            Pmt = pearsonr(observed_Q, model_Q)[0] # Correlation coefficient
             
         return print(colored(text = [PerformanceMetrics +' of the', ModelVersion, 'model is = ', np.round(Pmt,3)], 
                              color='green', attrs=['reverse', 'blink']) )
     
     if MetricTransformation == 'Logarithmic':
-        logO = observed_Q + Log_factor
-        logS = model_Q + Log_factor
+        logO = np.log(observed_Q + Log_factor)
+        logS = np.log(model_Q + Log_factor)
         
         if PerformanceMetrics == 'NSE':
             Pmt =  1 - sum((logS - logO)**2)/sum((logO-np.mean(logO))**2)
         if PerformanceMetrics == 'KGE':
             Pmt =  kge(logO, logS)
         if PerformanceMetrics == 'PBIAS':
-            Pmt = (100 * np.sum(logO - logS, axis=0)/ np.sum(logO))
-        if PerformanceMetrics == 'R2':
-            Pmt = r2_score(logO, logS)
+            Pmt = None # (100 * np.sum(logO - logS, axis=0)/ np.sum(logO))
+        if PerformanceMetrics == 'r2':
+            Pmt = pearsonr(logO, logS)[0]
             
             
         return print(colored(text = ['log' + PerformanceMetrics + ' of the', ModelVersion, 'model is = ', np.round(Pmt,3)], 
                              color='green', attrs=['reverse', 'blink']) )
     # plot hydrograph
+    
+def PredictivePerformanceSummary(observed_Q, model_Q,Log_factor=0.1):
+    
+    PMT = pd.DataFrame(data = np.nan, columns = ['NSE', 'KGE', 'PBIAS', 'r2'],
+                       index = ['Untransformed Flow', 'logTransformed Flow'])
+    
+    PMT.loc['Untransformed Flow', 'NSE'] = 1 - sum((model_Q - observed_Q)**2)/sum((observed_Q - np.mean(observed_Q))**2)
+    PMT.loc['Untransformed Flow', 'KGE'] = kge(observed_Q, model_Q)
+    PMT.loc['Untransformed Flow', 'PBIAS'] = (100 * np.sum(observed_Q - model_Q, axis=0)/ np.sum(observed_Q))
+    PMT.loc['Untransformed Flow', 'r2'] = pearsonr(observed_Q, model_Q)[0]
+    
+    logO = np.log(observed_Q + Log_factor)
+    logS = np.log(model_Q + Log_factor)
+    
+    PMT.loc['logTransformed Flow', 'NSE'] = 1 - sum((logS - logO)**2)/sum((logO-np.mean(logO))**2)
+    PMT.loc['logTransformed Flow', 'KGE'] = kge(logO, logS)
+    PMT.loc['logTransformed Flow', 'PBIAS'] = None
+    PMT.loc['logTransformed Flow', 'r2'] = pearsonr(logO, logS)[0]
+    
+    return PMT
 
 def plot_FDC(Q, title, colrShape, unit):
     n = len(Q)
