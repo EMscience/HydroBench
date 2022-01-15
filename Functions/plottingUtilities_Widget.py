@@ -631,8 +631,10 @@ def plot_confusion_matrix(df_confusion, bns, ticks):
     #plt.title(title)
     tick_marksx = np.arange(len(df_confusion.columns))
     tick_marksy = np.arange(len(df_confusion.index))
+        
 #     plt.xticks(tick_marksx, df_confusion.columns, rotation=45)
 #     plt.yticks(tick_marksy, df_confusion.index)
+
     plt.xticks(tick_marksx, np.round(bns,2), rotation=90)
     plt.yticks(tick_marksy, np.round(bns,2))
     plt.tight_layout()
