@@ -219,8 +219,8 @@ def plotPerformanceTradeoff_Two(lag, RCalib, modelVersion):
 def NSE2(o,s, k): # computes both NSE and logNSE
     NSE = 1 - sum((s-o)**2)/sum((o-np.mean(o))**2)
     
-    logS = o + k
-    logO = s + k
+    logS = np.log(o + k)
+    logO = np.log(s + k)
     logNSE =  1 - sum((logS - logO)**2)/sum((logO-np.mean(logO))**2)
     
     return NSE, logNSE    
@@ -302,7 +302,7 @@ def generateChordPlots2_(R,optLag,optsHJ,modelVersion):
     
 def kge(observed_Q, model_Q):
     
-    cc = np.corrcoef(observed_Q, model_Q)[0, 1]
+    cc = pearsonr(observed_Q, model_Q)[0]
     alpha = np.std(model_Q) / np.std(observed_Q)
     beta = np.sum(model_Q) / np.sum(observed_Q)
     return 1 - np.sqrt((cc - 1)**2 + (alpha - 1)**2 + (beta - 1)**2)
@@ -414,7 +414,7 @@ def plot_FDC(Q, title, colrShape, unit):
     # Reverse the sorted array
     reverse_array = sorted_array[::-1]
        
-    plt.plot(np.arange(1,n+1)/(n),reverse_array,colrShape,label= title)
+    plt.plot(np.arange(1,n+1)/(n+1),reverse_array,colrShape,label= title)
     plt.xlabel('Exceedence probabilty',fontsize=20)
     plt.ylabel('Streamflow' + unit,fontsize=20)
     plt.yscale('log')
@@ -445,7 +445,7 @@ def plotRecession(ppt, Q, dateTime, title,labelP,labeltxt, season, alpha):
         if season == 'Winter':
             
             # Winter month recessions
-            startdate = '11-' + str(year)
+            startdate = '10-' + str(year)
             enddate = '3-' + str(year+1)
             rain = np.array(ppt.loc[startdate:enddate])
             runoff = np.array(Q.loc[startdate:enddate])
@@ -506,11 +506,11 @@ def plotRecession(ppt, Q, dateTime, title,labelP,labeltxt, season, alpha):
     plt.plot(np.log(qs),np.log(-1*dqs),labelP,label=labeltxt,alpha=alpha)
     #plt.scatter(np.log(qs),np.log(-1*dqs), label=labeltxt,alpha=alpha)
     
-    plt.xlabel('log(Q)',fontsize=12)
-    plt.title(season + ' ' + title ,fontsize=12)#12
-    plt.ylabel(r'$\log \left( -\mathrm{\frac{dQ}{dt}}\right)$', color='k',fontsize=12)
+    plt.xlabel('log(Q)',fontsize=14)
+    plt.title(season + ' ' + title ,fontsize=14)#12
+    plt.ylabel(r'$\log \left( -\mathrm{\frac{dQ}{dt}}\right)$', color='k',fontsize=14)
     plt.grid(linestyle='-.')
-    plt.legend()
+    plt.legend(fontsize=14)
     
     
 def AnnualRunoffCoefficient(table,StrtHydroYear,EndHydroYear,PrecipName,RunoffName):
