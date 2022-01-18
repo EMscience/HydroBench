@@ -635,11 +635,11 @@ def plot_confusion_matrix(df_confusion, bns, ticks):
 #     plt.xticks(tick_marksx, df_confusion.columns, rotation=45)
 #     plt.yticks(tick_marksy, df_confusion.index)
 
-    plt.xticks(tick_marksx, np.round(bns,2), rotation=90)
-    plt.yticks(tick_marksy, np.round(bns,2))
+    plt.xticks(tick_marksx, np.round(bns,2), rotation=90,fontsize=10)
+    plt.yticks(tick_marksy, np.round(bns,2),fontsize=10)
     plt.tight_layout()
-    plt.ylabel(df_confusion.index.name)
-    plt.xlabel(df_confusion.columns.name)
+    plt.ylabel(df_confusion.index.name,fontsize=14)
+    plt.xlabel(df_confusion.columns.name,fontsize=14)
     plt.grid()
     
     ax = plt.gca()
@@ -667,6 +667,7 @@ def plotHist(SquMat,bns,sz, title=['Observed Q', 'Model Q']):
     ax.set_xticks(ind+width/2)
     xtickNames = ax.set_xticklabels(xTickMarks)
     plt.setp(xtickNames, rotation=90, fontsize=10)
+    plt.yticks(fontsize=10)
     ax.yaxis.grid(linestyle='-.')
     ax.set_xlabel('Median value')
     ax.set_ylabel('Frequency')
