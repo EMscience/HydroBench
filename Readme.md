@@ -38,8 +38,8 @@ Cedar River, WA.
 
 #### Data
 - Contains two example outpus of the [NHM-PRMS](https://pubs.er.usgs.gov/publication/tm6B9) model results at the Cedar River, WA
-	1. CalibratedHJAndrew.txt -- Calibrated NHM-PRMS model output data
-	2. UnCalibratedHJAndrew.txt -- Uncalibrated NHM-PRMS model output data
+	1. 12115000_Calibrated.statVar -- Calibrated NHM-PRMS model output data
+	2. 12115000_unCalibrated.statVar -- Uncalibrated NHM-PRMS model output data
 
 
 #### Functions 

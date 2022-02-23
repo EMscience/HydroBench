@@ -21,7 +21,7 @@ hydrograph recession analysis and water-balance metrics while from information t
 We demonstrate the application of these metrics on the the National Hydrologic Model product using the PRMS model ([NHM-PRMs]()). 
 NHM-PRMS has two model products covering the CONUS - the calibrated and uncalibrated model products. 
 Out of the CONUS wide NHM-PRMS products, this notebook focused on the NHM-PRMS product at the 
-[Cedar River, WA]. 
+Cedar River, WA. 
 
 ### File Description
 
