@@ -26,7 +26,7 @@ Cedar River, WA.
 ### File Description
 
 #### Scripts
-	- Widgets_NHM_PRMS_Benchmarking_at_HJAndrews.ipynb -- the main notebook demonstrating the implimentation of information flow 
+	- Widgets_NHM_PRMS_Benchmarking.ipynb -- the main notebook demonstrating the implimentation of information flow 
 	(info-flow) based model benchmarking.
 
 	The notebook demonstrates:
