@@ -192,6 +192,7 @@ def plotPerformanceTradeoffNoFigure(lag, RCalib, modelVersion, WatershedName, So
     Store[modelVersion+'_TE_obs'][SourceVar][lag], 1 - Store[modelVersion+'_I'][SinkVar][lag]
     return PerfCal
     
+
     
     
 def generateChordPlots(R,optLag,optsHJ,modelVersion):
