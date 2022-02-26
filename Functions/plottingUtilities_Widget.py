@@ -192,49 +192,6 @@ def plotPerformanceTradeoffNoFigure(lag, RCalib, modelVersion, WatershedName, So
     Store[modelVersion+'_TE_obs'][SourceVar][lag], 1 - Store[modelVersion+'_I'][SinkVar][lag]
     return PerfCal
     
-def plotPerformanceTradeoff_Two(lag, RCalib, modelVersion):
-    
-    Store = generateResultStore(modelVersion,RCalib)
-    
-    if modelVersion == 'Calibrated':
-        
-        PerfCal = pd.DataFrame(np.ones([1,3])*np.nan,columns= ['Watershed', 'Functional Performance (TEmod - TEobs)', 'Predictive Performance (1-MI)'])
-        
-        PerfCal.iloc[0,:] = 'HJ Andrews', Store['Calibrated_TE'].basin_ppt[lag] - Store['Calibrated_TE_obs'].basin_ppt[lag], 1 - Store['Calibrated_I'].observed_Q[lag]
-
-        plt.figure(figsize=[7,5])
-        plt.scatter(PerfCal.iloc[:,1],PerfCal.iloc[:,2],color='blue', s = 50, marker = 'o', facecolors='none', edgecolors='r', label='Calibrated')
-        plt.axvline(x=0,color = 'b',ls=':', lw = 3)
-        plt.xlabel(PerfCal.columns[1], size=12)
-        plt.ylabel(PerfCal.columns[2], size = 12)
-        plt.grid(linestyle='-.')
-        plt.title('Performance tradeof at lag = ' + str(lag), size =14) 
-        plt.legend()
-        
-    if modelVersion == 'Uncalibrated':
-                
-        PerfUnCal = pd.DataFrame(np.ones([1,3])*np.nan,columns= ['Watershed', 'Functional Performance (TEmod - TEobs)', 'Predictive Performance (1-MI)'])
-        PerfUnCal.iloc[0,:] = 'HJ Andrews', Store['Uncalibrated_TE'].basin_ppt[lag] - Store['Uncalibrated_TE_obs'].basin_ppt[lag], 1 - Store['Uncalibrated_I'].observed_Q[lag]
-
-        plt.figure(figsize=[7,5])
-        plt.scatter(PerfUnCal.iloc[:,1],PerfUnCal.iloc[:,2],color='black', s = 50, marker = 'o', facecolors='none', edgecolors='k', label='UnCalibrated')
-        plt.axvline(x=0,color = 'b',ls=':', lw = 3)
-        plt.xlabel(PerfCal.columns[1], size=12)
-        plt.ylabel(PerfCal.columns[2], size = 12)
-        plt.grid(linestyle='-.')
-        plt.title('Performance tradeof at lag = ' + str(lag), size =14) 
-    plt.legend()
-    
-    
-    
-def NSE2(o,s, k): # computes both NSE and logNSE
-    NSE = 1 - sum((s-o)**2)/sum((o-np.mean(o))**2)
-    
-    logS = np.log(o + k)
-    logO = np.log(s + k)
-    logNSE =  1 - sum((logS - logO)**2)/sum((logO-np.mean(logO))**2)
-    
-    return NSE, logNSE    
     
     
 def generateChordPlots(R,optLag,optsHJ,modelVersion):
