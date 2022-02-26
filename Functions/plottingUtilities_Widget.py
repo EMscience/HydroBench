@@ -178,8 +178,19 @@ def plotPerformanceTradeoff(lag, RCalib, modelVersion, WatershedName, SourceVar,
     plt.grid(linestyle='-.')
     plt.title('Performance tradeof at lag = ' + str(lag), size =14) 
     plt.legend()
-    return PerfCal
     
+
+
+def plotPerformanceTradeoffNoFigure(lag, RCalib, modelVersion, WatershedName, SourceVar, SinkVar):
+    
+    Store = generateResultStore(modelVersion,RCalib)
+    
+    PerfCal = pd.DataFrame(np.ones([1,3])*np.nan,columns= ['Watershed', 
+            'Functional Performance (TEmod - TEobs)', 'Predictive Performance (1-MI)'])
+    
+    PerfCal.iloc[0,:] = WatershedName, Store[modelVersion+'_TE'][SourceVar][lag]- \
+    Store[modelVersion+'_TE_obs'][SourceVar][lag], 1 - Store[modelVersion+'_I'][SinkVar][lag]
+    return PerfCal
     
 def plotPerformanceTradeoff_Two(lag, RCalib, modelVersion):
     
@@ -363,7 +374,7 @@ def PredictivePerformance(ModelVersion, PerformanceMetrics, MetricTransformation
             Pmt = kge(observed_Q, model_Q)
         if PerformanceMetrics == 'PBIAS':
             Pmt = (100 * np.sum(observed_Q - model_Q, axis=0)/ np.sum(observed_Q))
-        if PerformanceMetrics == 'r2':
+        if PerformanceMetrics == 'r':
             Pmt = pearsonr(observed_Q, model_Q)[0] # Correlation coefficient
             
         return print(colored(text = [PerformanceMetrics +' of the', ModelVersion, 'model is = ', np.round(Pmt,3)], 
@@ -379,7 +390,7 @@ def PredictivePerformance(ModelVersion, PerformanceMetrics, MetricTransformation
             Pmt =  kge(logO, logS)
         if PerformanceMetrics == 'PBIAS':
             Pmt = None # (100 * np.sum(logO - logS, axis=0)/ np.sum(logO))
-        if PerformanceMetrics == 'r2':
+        if PerformanceMetrics == 'r':
             Pmt = pearsonr(logO, logS)[0]
             
             
@@ -389,13 +400,13 @@ def PredictivePerformance(ModelVersion, PerformanceMetrics, MetricTransformation
     
 def PredictivePerformanceSummary(observed_Q, model_Q,Log_factor=0.1):
     
-    PMT = pd.DataFrame(data = np.nan, columns = ['NSE', 'KGE', 'PBIAS', 'r2'],
+    PMT = pd.DataFrame(data = np.nan, columns = ['NSE', 'KGE', 'PBIAS', 'r'],
                        index = ['Untransformed Flow', 'logTransformed Flow'])
     
     PMT.loc['Untransformed Flow', 'NSE'] = 1 - sum((model_Q - observed_Q)**2)/sum((observed_Q - np.mean(observed_Q))**2)
     PMT.loc['Untransformed Flow', 'KGE'] = kge(observed_Q, model_Q)
     PMT.loc['Untransformed Flow', 'PBIAS'] = (100 * np.sum(observed_Q - model_Q, axis=0)/ np.sum(observed_Q))
-    PMT.loc['Untransformed Flow', 'r2'] = pearsonr(observed_Q, model_Q)[0]
+    PMT.loc['Untransformed Flow', 'r'] = pearsonr(observed_Q, model_Q)[0]
     
     logO = np.log(observed_Q + Log_factor)
     logS = np.log(model_Q + Log_factor)
@@ -403,7 +414,7 @@ def PredictivePerformanceSummary(observed_Q, model_Q,Log_factor=0.1):
     PMT.loc['logTransformed Flow', 'NSE'] = 1 - sum((logS - logO)**2)/sum((logO-np.mean(logO))**2)
     PMT.loc['logTransformed Flow', 'KGE'] = kge(logO, logS)
     PMT.loc['logTransformed Flow', 'PBIAS'] = None
-    PMT.loc['logTransformed Flow', 'r2'] = pearsonr(logO, logS)[0]
+    PMT.loc['logTransformed Flow', 'r'] = pearsonr(logO, logS)[0]
     
     return PMT
 
@@ -452,7 +463,7 @@ def plotRecession(ppt, Q, dateTime, title,labelP,labeltxt, season, alpha):
         elif season == 'Summer':
             # Summer month recessions
             startdate = '4-' + str(year)
-            enddate = '10-' + str(year)
+            enddate = '9-' + str(year)
             rain = np.array(ppt.loc[startdate:enddate])
             runoff = np.array(Q.loc[startdate:enddate])
         else:
