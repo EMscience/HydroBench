@@ -30,8 +30,8 @@ Out of the CONUS wide NHM-PRMS products, this notebook focused on the NHM-PRMS p
 	(info-flow) based model benchmarking.
 
 	The notebook demonstrates:
-	1. Traditional model performance efficiency measure using NSE, KGE, PBIAS and logNSE
-	2. Hydrological signature measures including flow duration and recession curves
+	1. Traditional model performance efficiency measure using NSE, KGE, PBIAS and r along with their log transformations.
+	2. Hydrological signature measures including runoff coefficient, flow duration, time linked flow duration and recession curves
 	3.1 Tradeoffs between predictive and functional performance
 	3.2 Info-flow based model internal functions using process networks (PN)
 

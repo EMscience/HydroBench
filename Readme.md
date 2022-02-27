@@ -1,7 +1,6 @@
 [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/EMscience/NHM_PRMS_Bechmarking/HEAD)
+[![DOI](https://zenodo.org/badge/375593287.svg)](https://zenodo.org/badge/latestdoi/375593287)
 
-Please click the above binder link to launch the notebook on cloud.
- 
 ## Hydrological Model Benchmarking and Diagnostics
 
 Hydrological model performances are commonly evaluated based on different statistical metrics e.g., the Nash Sutcliffe 
