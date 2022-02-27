@@ -1,4 +1,4 @@
-[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/EMscience/NHM_PRMS_Bechmarking/HEAD)
+[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/EMscience/HydroBench/HEAD)
 [![DOI](https://zenodo.org/badge/375593287.svg)](https://zenodo.org/badge/latestdoi/375593287)
 
 ## Hydrological Model Benchmarking and Diagnostics
@@ -36,7 +36,7 @@ Out of the CONUS wide NHM-PRMS products, this notebook focused on the NHM-PRMS p
 
 
 #### Data
-- Contains two example outpus of the [NHM-PRMS](https://pubs.er.usgs.gov/publication/tm6B9) model results at the Cedar River, WA
+- Contains two example outpus of the [NHM-PRMS](https://pubs.er.usgs.gov/publication/tm6B9) model results at the [Cedar River, WA](https://waterdata.usgs.gov/nwis/nwismap/?site_no=12115000&agency_cd=USGS):
 	1. 12115000_Calibrated.statVar -- Calibrated NHM-PRMS model output data
 	2. 12115000_unCalibrated.statVar -- Uncalibrated NHM-PRMS model output data
 
