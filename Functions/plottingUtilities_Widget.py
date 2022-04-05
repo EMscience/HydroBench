@@ -22,8 +22,37 @@ pathResult = (r"./Result/")
 
 def CouplingAndInfoFlowPlot(optsHJ,popts):
     
+    """Plots source to sink information flow test statistics e.g., TE along with its statistical significance level at each lag. 
+    
+    .. ref::
+   Ruddell et al., 2019 WRR
 
-    # Execute InfoFlow code
+    Parameters
+    ----------
+    optsHJ : a dictionary that defines the plotting options such as file names, number of bins. Please refer to the Notebook for the complete list of options.
+    
+    popts : an output dictionary containing the information theoretic metrics.
+        model simulated time series.
+        
+    Log_factor : float, optional
+        offset for log transformed computation of the metrics. default is 0.1.
+
+    Returns
+    -------
+    1. a pickle file saved in the results folder containing information theoretic metrics including:
+    1.1 H - entopy of each varible, and joint entropy of variables
+    1.2 MI - mutual information between each of the two variables
+    1.3 TE - transfer entropy from to each variable
+    1.4 their statistical significance
+    2. a plot of source to sink information flow values. 
+    2.1 bar plot of each source to any sink
+    2.2 line plot of lag vs the test statistics for the indicated source and sink variables. 
+    3. the options defined by the input optsHJ.
+
+    """
+    
+
+    # Execute InfoFlow code -- main function
     R, optsHJ = ProcessNetwork(optsHJ)
     
     # Pull the test statistic
@@ -278,6 +307,34 @@ def kge(observed_Q, model_Q):
     
     
 def PredictivePerformance(ModelVersion, PerformanceMetrics, MetricTransformation, nameFCalib, nameFunCalib, obsQCol, modQCol): # computes both NSE and logNSE
+    
+    """Returns an interactive plot of untransformed and logarithm transformed predictive performance measures including:
+     1. Nash-Sutcliffe coefficent (NSE),
+     2. Kling-gupta efficiency (KGE)
+     3. Percent Bias (PBIAS)
+     4. Pearson correleation coefficient (r)
+     5. Hydrograph plot ( a time series plot of streamflow and precipitation.
+
+    .. ref::
+    Klign and Gupta 2009, title' Hydrological Sciences Journal.
+
+    Parameters
+    ----------
+    ModelVersion : a sting indicating the name of the model version. Options are calibrated an Uncalibrated.
+    PerformanceMetrics : flag indicating which predictive performance metrics to print out. 
+    MetricTransformation : flag indicating a logarithmic transform or untransformed. Options are  'Untransformed', 'Logarithmic'
+    nameFCalib : name of the calibrated model file.
+    nameFunCalib : name of the uncalibrated model file.
+    obsQCol : column number of observed streamflow. 
+    modQCol : column number of model simulated streamflow.
+    
+    Returns
+    -------
+    An interactive plot of untransformed and transformed predictive performance metrics along with a hydrograph.
+
+    """
+    
+    
     Log_factor = 0.1
 
     
@@ -358,6 +415,30 @@ def PredictivePerformance(ModelVersion, PerformanceMetrics, MetricTransformation
     
 def PredictivePerformanceSummary(observed_Q, model_Q,Log_factor=0.1):
     
+     """Returns untransformed and logarithm transformed predictive performance measures including:
+     1. Nash-Sutcliffe coefficent (NSE),
+     2. Kling-gupta efficiency (KGE)
+     3. Percent Bias (PBIAS)
+     4. Pearson correleation coefficient (r)
+
+    .. ref::
+    Klign and Gupta 2009, title' Hydrological Sciences Journal.
+
+    Parameters
+    ----------
+    observed_Q : numpy array 
+        observed time series
+    model_Q : numpy array 
+        model simulated time series
+    Log_factor : float, optional
+        offset for log transformed computation of the metrics. default is 0.1.
+
+    Returns
+    -------
+    Pandas data frame containig both logarithm transformed and untransformed metrics.
+
+    """
+    
     PMT = pd.DataFrame(data = np.nan, columns = ['NSE', 'KGE', 'PBIAS', 'r'],
                        index = ['Untransformed Flow', 'logTransformed Flow'])
     
@@ -377,6 +458,28 @@ def PredictivePerformanceSummary(observed_Q, model_Q,Log_factor=0.1):
     return PMT
 
 def plot_FDC(Q, title, colrShape, unit):
+    
+    """Returns a plot of Flow Duration Curve (FDC) that relates streamflow and its exceedance probability.
+    
+    .. ref::
+    
+
+    Parameters
+    ----------
+    Q : numpy array 
+        Streamflow time series
+    title : label associated with the streamflow data. 
+        
+    colrShape : string indicating plot markers
+    unit : unit associated with the streamflow data e.g., cfs
+
+    Returns
+    -------
+    A flow duration curve.
+
+    """
+    
+    
     n = len(Q)
     sorted_array = np.sort(Q)
     
@@ -391,6 +494,34 @@ def plot_FDC(Q, title, colrShape, unit):
     plt.legend()
     
 def plotRecession(ppt, Q, dateTime, title,labelP,labeltxt, season, alpha):
+    
+    
+    """Returns a plot of Recession curve that relates mean streamflow and its time derivative in the absence of precipitation.
+    
+    .. ref::
+    
+
+    Parameters
+    ----------
+    ppt : numpy array containing precipitation time series.
+        
+    Q : a numpy array containg streamflow data with corresponding to the precipitation data. 
+        
+    dateTime : a date time timestamp for both precipitation streamflow. 
+    title : title for the plotted recession curve.
+    labelP : label of the streamflow timeseries.
+    labeltxt: plotting marker color and shape.
+    season: which season recession curve to plot. The options are:
+    1. Summer - covering the months of April to September.
+    2. Winter - covering the months of October to March.
+    3. All - covers the entire year
+    alpha : transparecy for the plotted marker. 
+    
+    Returns
+    -------
+    A plot of recession curve.
+
+    """
     
     # Lag in days after neglible rainfall before analysis starts
     rainfall_lag = 1.0
@@ -483,6 +614,27 @@ def plotRecession(ppt, Q, dateTime, title,labelP,labeltxt, season, alpha):
     
     
 def AnnualRunoffCoefficient(table,StrtHydroYear,EndHydroYear,PrecipName,RunoffName):
+    
+    """Returns annual runoff coefficient.
+    
+    .. ref::
+    
+
+    Parameters
+    ----------
+    table : numpy array containg precipitation, observed streamflow and model simulated streamflow.  
+        
+    StrtHydroYear : Starting month of the hydrological year. Default is October.
+    EndHydroYear : Ending month of the hydrological year. Default is September.
+    PrecipName : name of the precipitation data.
+    RunoffName : name of the streamflow data.
+    
+    Returns
+    -------
+    Annual Runoff Coefficient for both observed and model data.
+
+    """
+    
     yearInt = min(table.index.year)
     yearMax = max(table.index.year)
 
@@ -645,6 +797,32 @@ def plotHist(SquMat,bns,sz, title=['Observed Q', 'Model Q']):
     plt.show()
     
 def timeLinkedFDC(obs, mod, binSize, Flag, FigSize1, FigSize2, NameObserved, NameModel,ticks):
+    
+    """Returns a plot of the time linked flow duration curve.
+    
+    .. ref:: 
+    
+
+    Parameters
+    ----------
+    obs : numpy array containg observed streamflow.  
+    mod : numpy array containg model simulated streamflow
+    binSize : number of bins to construct a histogram. 
+    Flag : Which binning method to use the ptions are:
+    a. Flag = 1 :  Equal width based binning
+    b. Flag = 2 : Equal area based binning
+    c. Flag = 3 : Equal depth/frequency based binning
+    FigSize1 : figure dimension for the heatmap plot
+    FigSize2 : figure dimension for the histogram plot.
+    NameObserved : Label of the observed streamflow
+    NameModel : label for the model simulated streamflow
+    ticks : 
+    
+    Returns
+    -------
+    Returns a plot of the time linked flow duration curve.
+
+    """
     
     # Step 1 - generate the time tagged FDC (histogram)
     clsObs, clsMod,bns = FDCdiagnostics(obs,mod,binSize,Flag)
