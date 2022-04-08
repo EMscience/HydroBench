@@ -224,81 +224,23 @@ def plotPerformanceTradeoffNoFigure(lag, RCalib, modelVersion, WatershedName, So
 
     
     
-def generateChordPlots(R,optLag,optsHJ,modelVersion):
-    
-    CalTR = R['TR'][0,optLag,:,:] # Calibrated, picked zero as Lag since it is max across variables
-    CalibChord = pd.DataFrame(data=CalTR, columns=optsHJ['varNames'], index=optsHJ['varNames'])
-    dfCal = CalibChord.drop(columns=['observed_Q','basin_potet'],index=['observed_Q','basin_potet'], axis=[0,1])
-    # Set the diagonals to zero for the chord plot
-    np.fill_diagonal(dfCal.values, 0)
-    
-    # Declare a gridded HoloViews dataset and call dframe to flatten it
-    dataCal = hv.Dataset((list(dfCal.columns), list(dfCal.index), (dfCal.T*1000).astype(int)),
-                  ['source', 'target'], 'value').dframe()
-    
-    dfCal.columns = ['Precipitation','Min Temperature','Max Temperature','Streamflow','Soil Moisture','Snow melt','Actual ET']
-    dfCal.index = ['Precipitation','Min Temperature','Max Temperature','Streamflow','Soil Moisture','Snow melt','Actual ET']
-    dfCal.loc[:,'Min Temperature']=int(0)
-    dfCal.loc[:,'Max Temperature']=int(0)
-    dfCal.loc[:,'Precipitation']=int(0)
-    dfCal.loc[('Streamflow'),:]=int(0)
-    dfCal.loc[('Actual ET'),('Streamflow','Snow melt')]=int(0) # set all to 0?????
-    dfCal.loc['Soil Moisture','Snow melt']=int(0)
-    dfCal.loc['Precipitation','Actual ET']=int(0)
-    dfCal.loc['Snow melt',('Actual ET','Soil Moisture')]=int(0)
-    
-        # Calibrated chord diagram
-    dataCal = hv.Dataset((list(dfCal.columns), list(dfCal.index), (dfCal.T*1000).astype(int)),
-                  ['source', 'target'], 'value').dframe()
-    
-     # Now create your Chord diagram from the flattened data
-    #plt.title('Uncalibrated')
-    chord_Cal = hv.Chord(dataCal)
-    chord_Cal.opts(title=modelVersion,
-        node_color='index', edge_color='source', label_index='index', 
-        cmap='Category10', edge_cmap='Category10', width=500, height=500)
-    
-    
-    
-    return chord_Cal, dfCal*100
-    # Plot process networks
-# optLag = 0 # lag time -- lag 0 is chosen as TE is max at lag 0.
-# PN_Plot, PN_Table = generateChordPlots(RCalib,optLag,optsHJ,'Calibrated') # lag=0
-
-def generateChordPlots2_(R,optLag,optsHJ,modelVersion):
-    
-    CalTR = R['TR'][0,optLag,:,:] # Calibrated, picked zero as Lag since it is max across variables
-    CalibChord = pd.DataFrame(data=CalTR, columns=optsHJ['varNames'], index=optsHJ['varNames'])
-    dfCal = CalibChord.drop(columns=['observed_Q','basin_potet'],index=['observed_Q','basin_potet'], axis=[0,1])
-    # Set the diagonals to zero for the chord plot
-    np.fill_diagonal(dfCal.values, 0)
-    
-    
-    dfCal.columns = ['Precipitation','Min Temperature','Max Temperature','Streamflow','Soil Moisture','Snow melt','Actual ET']
-    dfCal.index = ['Precipitation','Min Temperature','Max Temperature','Streamflow','Soil Moisture','Snow melt','Actual ET']
-    dfCal.loc[:,'Min Temperature']=int(0)
-    dfCal.loc[:,'Max Temperature']=int(0)
-    dfCal.loc[:,'Precipitation']=int(0)
-    dfCal.loc[('Streamflow'),:]=int(0)
-    dfCal.loc[('Actual ET'),('Streamflow','Snow melt')]=int(0) # set all to 0?????
-    dfCal.loc['Soil Moisture','Snow melt']=int(0)
-    dfCal.loc['Precipitation','Actual ET']=int(0)
-    dfCal.loc['Snow melt',('Actual ET','Soil Moisture')]=int(0)
-    
-        # Calibrated chord diagram
-    dataCal = hv.Dataset((list(dfCal.columns), list(dfCal.index), (dfCal.T*1000).astype(int)),
-                  ['source', 'target'], 'value').dframe()
-    
-     # Now create your Chord diagram from the flattened data
-    #plt.title('Uncalibrated')
-    chord_Cal = hv.Chord(dataCal)
-    chord_Cal.opts(title=modelVersion,
-        node_color='index', edge_color='source', label_index='index', 
-        cmap='Category10', edge_cmap='Category10', width=500, height=500)
-    
-    show(hv.render(chord_Cal) )
-    
 def kge(observed_Q, model_Q):
+    
+    """Returns Kling-Gupta efficiency measure.
+    
+    .. ref::
+    
+
+    Parameters
+    ----------
+    observed_Q  : observed timeseries.
+    model_Q : model simulated timeseries. 
+        
+    Returns
+    ---------
+    kge : Kling-Gupta efficiency measure .
+
+    """
     
     cc = pearsonr(observed_Q, model_Q)[0]
     alpha = np.std(model_Q) / np.std(observed_Q)
@@ -415,7 +357,7 @@ def PredictivePerformance(ModelVersion, PerformanceMetrics, MetricTransformation
     
 def PredictivePerformanceSummary(observed_Q, model_Q,Log_factor=0.1):
     
-     """Returns untransformed and logarithm transformed predictive performance measures including:
+    """Returns untransformed and logarithm transformed predictive performance measures including:
      1. Nash-Sutcliffe coefficent (NSE),
      2. Kling-gupta efficiency (KGE)
      3. Percent Bias (PBIAS)
@@ -694,7 +636,8 @@ def histedges_equalA(x, nbin):
     return np.interp(np.linspace(0, tmp.max(), nbin + 1),tmp,np.sort(x))
 
 def histedges_equalN(x, nbin): 
-     """Returns bin edges based on equal depth binning.
+    
+    """Returns bin edges based on equal depth binning.
     
     .. ref::
     
