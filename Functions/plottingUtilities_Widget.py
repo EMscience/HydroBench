@@ -670,18 +670,65 @@ def AnnualRunoffCoefficient(table,StrtHydroYear,EndHydroYear,PrecipName,RunoffNa
 
 # Time Linked FDC
 
-def histedges_equalA(x, nbin): # Equal area binning
+def histedges_equalA(x, nbin):
+    
+    """Returns bin edges based on equal area binnin.
+    
+    .. ref::
+    
+
+    Parameters
+    ----------
+    x : numpy array 
+    nbin : number of bins. 
+        
+    Returns
+    ---------
+    a numpy array of the bin edges .
+
+    """
     pow = 0.5
     dx = np.diff(np.sort(x))
     tmp = np.cumsum(dx ** pow)
     tmp = np.pad(tmp, (1, 0), 'constant')
     return np.interp(np.linspace(0, tmp.max(), nbin + 1),tmp,np.sort(x))
 
-def histedges_equalN(x, nbin): # Equal depth binning - avoids empty bins - same frequency
+def histedges_equalN(x, nbin): 
+     """Returns bin edges based on equal depth binning.
+    
+    .. ref::
+    
+
+    Parameters
+    ----------
+    x : numpy array 
+    nbin : number of bins. 
+        
+    Returns
+    ---------
+    a numpy array of the bin edges .
+    
+    """
     npt = len(x)
     return np.interp(np.linspace(0, npt, nbin + 1),np.arange(npt),np.sort(x))
 
-def histedges_equalW(x,nbin): # equal width binning
+def histedges_equalW(x,nbin): 
+    
+    """Returns bin edges based on equal width binning.
+    
+    .. ref::
+    
+
+    Parameters
+    ----------
+    x : numpy array 
+    nbin : number of bins. 
+        
+    Returns
+    ---------
+    bns : a numpy array of the bin edges .
+    
+    """
     mn = min(x)
     mx = max(x)
     
@@ -694,6 +741,29 @@ def histedges_equalW(x,nbin): # equal width binning
     return bns
 
 def FDCdiagnostics(obs,model,binSize,Flag):# Sum off-diagonals and minimize them
+    
+    """Returns bin id of a given time series.
+    
+    .. ref::
+    
+
+    Parameters
+    ----------
+    obs : observed timeseries data
+    model : simulated timeseries data
+    binSize : number of bins for Time linked FDC
+    Flag : Flag indicating binning methods
+        Flag = 1 : Equal Width
+        Flag = 2 : Equal Area
+        Flag = 3 : Equal depth (i.e. Frequency)
+    
+    Returns
+    ---------
+    clsObs : bin id of the observed timeseries
+    clsMod : bin id of the model timeseries based on the observed bin classes/id
+    bns : bin edges
+    
+    """
     # time tag the data series and bin it to a histogram/FDC
     
     # comb = np.r_[obs,model] # combined binning
@@ -723,6 +793,22 @@ def FDCdiagnostics(obs,model,binSize,Flag):# Sum off-diagonals and minimize them
 
 def squareConfusionMatix(df_confusion,binSize):
     # Make the matrix square 
+    """Returns a square matrix of a time series of bin ids.
+    
+    .. ref::
+    
+
+    Parameters
+    ----------
+    df_confusion : a time series of bin ids 
+    binSize : number of bins. 
+        
+    Returns
+    ---------
+    SquaMat: a square matrix with counts of model bin id that in the same bin class as observed data.
+    
+    """
+    
     SquMat = np.nan*np.ones([binSize,binSize])
     for i in np.arange(1,binSize+1):
         for j in np.arange(1,binSize+1):
@@ -740,6 +826,22 @@ def squareConfusionMatix(df_confusion,binSize):
 from mpl_toolkits.axes_grid1 import make_axes_locatable, axes_size
 
 def plot_confusion_matrix(df_confusion, bns, ticks):
+    
+    """Returns a heatmap plot of the square matrix that relates the counts of simulated and observed binnin based on the function squareConfusionMatix().
+    
+    .. ref::
+    
+
+    Parameters
+    ----------
+    df_confusion : a square matrix with counts of model bin id that in the same bin class as observed data 
+    bns : bin edges.  
+    ticks : markers for the heatmap plot
+        
+    Returns
+    ---------
+    a heatmap plot of time linked flow duration curve .
+    """
     
     cmap=plt.cm.jet #plt.cm.jet, gray_r
     extent = (0, df_confusion.shape[1], df_confusion.shape[0], 0)
@@ -776,6 +878,25 @@ def plot_confusion_matrix(df_confusion, bns, ticks):
     plt.show()
     
 def plotHist(SquMat,bns,sz, title=['Observed Q', 'Model Q']):
+    
+    """Returns a histogram plot of the square matrix that relates the counts of simulated and observed binnin based on the function squareConfusionMatix().
+    
+    .. ref::
+    
+
+    Parameters
+    ----------
+    df_confusion : a square matrix with counts of model bin id that in the same bin class as observed data 
+    bns : bin edges.  
+    sz : figure size
+    title : figure title
+        
+        
+    Returns
+    ---------
+    a histogram plot of the time linked flow duration curve.
+    """
+    
     fig = plt.figure(figsize=sz)
     ax = fig.add_subplot(111)
     ind = SquMat.index
