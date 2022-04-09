@@ -62,6 +62,9 @@ def logwrite(msg,vout):
 
 def DoProduction(T):
     
+    """ A helper function that adds and subtraccts metrics.
+    """
+    
     nFiles, nTaus, nVars,xx = np.shape(T)
     
     Tplus = np.zeros([nFiles,nVars,nTaus])
@@ -93,6 +96,12 @@ def DoProduction(T):
 
 
 def NormTheStats(nBinVect,I,T,SigThreshI,SigThreshT,meanShuffI,sigmaShuffI,meanShuffT,sigmaShuffT,HXt,HYf,lagVect):
+    
+    """ A helper function that normalizes the information theoretic metrics.
+    Two types of normalizations are reported:
+    1. relative normalization i.e., normalization by the sink variables entropy e.g., TE/H for transfer entropy
+    2. absolute normalization - normalizes the test statistics by log2 (number of bins).
+    """
     
     # Get size
     nFiles,nLags, nSignals,xx  = np.shape(I)
@@ -157,6 +166,8 @@ def NormTheStats(nBinVect,I,T,SigThreshI,SigThreshT,meanShuffI,sigmaShuffI,meanS
 
 
 def AdjMatrices(T,SigThreshT,TvsIzero,lagVect):
+    """ A helper function that computes an adjacency matrix.
+    """
     # COMPUTES AN ADJACENCY MATRIX A
     # COMPUTES THE CHARACTERISTIC LAG WHICH IS THE FIRST SIGNIFICANT LAG
     # TAKES THE TRANSFER INFORMATION MATRIX AND THE SIGNIFICANCE THRESHOLDS
@@ -296,6 +307,29 @@ def AdjMatrices(T,SigThreshT,TvsIzero,lagVect):
 
 
 def ProcessNetwork(opts):
+    
+    """The main information theoretic function that returns a dictionary of the information theoretic metrics.
+    
+    .. ref::
+    
+
+    Parameters
+    ----------
+    opts  : a dicctionary containig the input data, number of bins, statistical thresholds.
+            For a full list refer the main notebook with the example
+        
+    Returns
+    ---------
+    R : a dictionary containing the information theoretic metrics that includes:
+    1. Transfer entropy
+    2. Mutual information
+    3. 1D entropy of source and sink
+    3. 2D entropies of each variable
+    
+    opts : the input specifications defined in the input argument.
+
+    """
+    
     
     global processLog
     processLog = []
@@ -902,14 +936,27 @@ def ProcessNetwork(opts):
 
         
     
-    
-    
+       
 
 
 # %%
 
 
 def couplingLagPlot(R,popts):
+    
+    """ Plots the information theoretic statistics (TE) from source to sink variable. 
+    The source and sink are defined in the popts while R contains the inofrmation theoretic statistics.
+    
+    Parameters
+    ----------
+    R : a dictionary containing the information theoretic metrics 
+    popts : a dictionary defining the elements in R
+    
+    Returns
+    ----------
+    A line plot of source to sink information theoretic metric along with its statistical significance.
+    
+    """
     
     # Pull the test statistic
     # TE values (relative)
@@ -952,6 +999,20 @@ def couplingLagPlot(R,popts):
 
 
 def multiCouplingSynchronyPlot(R,popts):
+    
+    """ Plots the information theoretic statistics (Transfer Entropy - TE) from source to sink variable. 
+    The source and sink are defined in the popts while R contains the inofrmation theoretic statistics.
+    
+    Parameters
+    ----------
+    R : a dictionary containing the information theoretic metrics 
+    popts : a dictionary defining the elements in R
+    
+    Returns
+    ----------
+    A bar plot of source to sink information theoretic metric (TE) along with its statistical significance.
+    
+    """
     
     # Pull the test statistic
     # TE values (relative)

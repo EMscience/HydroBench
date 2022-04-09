@@ -22,14 +22,14 @@ pathResult = (r"./Result/")
 
 def CouplingAndInfoFlowPlot(optsHJ,popts):
     
-    """Plots source to sink information flow test statistics e.g., TE along with its statistical significance level at each lag. 
+    """Computes the information flow metrics and plots source to sink information flow test statistics e.g., TE along with its statistical significance level at each lag. 
     
     .. ref::
    Ruddell et al., 2019 WRR
 
     Parameters
     ----------
-    optsHJ : a dictionary that defines the plotting options such as file names, number of bins. Please refer to the Notebook for the complete list of options.
+    optsHJ : a dictionary that defines the plotting options such as file names, number of bins. Please refer to the main Notebook for the complete list of options.
     
     popts : an output dictionary containing the information theoretic metrics.
         model simulated time series.
@@ -40,7 +40,7 @@ def CouplingAndInfoFlowPlot(optsHJ,popts):
     Returns
     -------
     1. a pickle file saved in the results folder containing information theoretic metrics including:
-    1.1 H - entopy of each varible, and joint entropy of variables
+    1.1 H - entopy of each varible, and joint entropy of the combination of each variables
     1.2 MI - mutual information between each of the two variables
     1.3 TE - transfer entropy from to each variable
     1.4 their statistical significance
@@ -138,8 +138,26 @@ def CouplingAndInfoFlowPlot(optsHJ,popts):
 # %%time
 # RCalib, optsHJCal = CouplingAndInfoFlowPlot(optsHJ,popts)
 
-def extractTestStatistics(x,toVar,testStat, SigThr):
-    fi = 0
+def extractTestStatistics(x,toVar,testStat, SigThr,fi = 0):
+    
+    """Returns any metric among the calculated information theoretic metrics. Name of the test statistics is defined by the parameter testStat.
+    
+    .. ref::
+    
+
+    Parameters
+    ----------
+    x  : a dictionary containing the information theoretic metrics.
+    toVar : the name of the sink variable. 
+    testStat : the name of the test statistics to be extracted
+    SigThr : the statistical significance level
+        
+    Returns
+    ---------
+    the information theoretic metric defined by testStat.
+
+    """
+    
     popts = {}
     popts['testStatistic'] = testStat # Relative transfer entropy T/Hy
     popts['SigThresh'] = SigThr # significance test critical value # 
@@ -174,6 +192,22 @@ def extractTestStatistics(x,toVar,testStat, SigThr):
 
 def generateResultStore(modelVersion,R): # Compiles the Results into a dictionary
     
+    """Returns a dictionary of the information theoretic metrics.
+    
+    .. ref::
+    
+
+    Parameters
+    ----------
+    modelVersion  : user defined model name e.g., calibrated or uncalibrated.
+    R : a pickle file with the information theoretic metrics. 
+        
+    Returns
+    ---------
+    Store : a dictionary containing the information theoretic metrics.
+
+    """
+    
     XTE, XsTE, Source, Sink = extractTestStatistics(R,'model_Q','TR','SigThreshTR')
     XTE_obs, XsTE_obs, Source_obs, Sink_obs = extractTestStatistics(R,'observed_Q','TR','SigThreshTR')
     XI, XsI, Source, Sink = extractTestStatistics(R,'model_Q','IR','SigThreshIR')
@@ -189,6 +223,26 @@ def generateResultStore(modelVersion,R): # Compiles the Results into a dictionar
     return Store
 
 def plotPerformanceTradeoff(lag, RCalib, modelVersion, WatershedName, SourceVar, SinkVar):
+    
+    """Returns the plot of the tradeoff between functional (transfer entropy) and predictive (mutual entropy) performances.
+    
+    .. ref:: Ruddell et al., 2019 WRR
+    
+
+    Parameters
+    ----------
+    lag  : lag time for computing transfer entropy and mutual enformation.
+    RCalib : the information theoretic metrics repository
+    modelVersion : model version e.g. calibrated, uncalibrated
+    WatershedName : watershed name
+    SourceVar : the name of the source variable 
+    SinkVariable : the name of the sink variable 
+        
+    Returns
+    ---------
+    plots tranfer entropy vs mutual information.
+
+    """
     
     Store = generateResultStore(modelVersion,RCalib)
     
@@ -211,6 +265,26 @@ def plotPerformanceTradeoff(lag, RCalib, modelVersion, WatershedName, SourceVar,
 
 
 def plotPerformanceTradeoffNoFigure(lag, RCalib, modelVersion, WatershedName, SourceVar, SinkVar):
+    
+    """Returns a dataframe of the plot of the tradeoff between functional (transfer entropy) and predictive (mutual entropy) performances.
+    
+    .. ref:: Ruddell et al., 2019 WRR
+    
+
+    Parameters
+    ----------
+    lag  : lag time for computing transfer entropy and mutual enformation.
+    RCalib : the information theoretic metrics repository
+    modelVersion : model version e.g. calibrated, uncalibrated
+    WatershedName : watershed name
+    SourceVar : the name of the source variable 
+    SinkVariable : the name of the sink variable 
+        
+    Returns
+    ---------
+    plots tranfer entropy vs mutual information.
+
+    """ 
     
     Store = generateResultStore(modelVersion,RCalib)
     

@@ -29,6 +29,14 @@ from joblib import Parallel, delayed
 
 
 def GetUniformBinEdges(sampleMat,nBinMat,pctlRange,NoDataCode):
+    
+    """ A helper function that compute the bin edges using fractions of the min and max.
+        
+    Returns
+    -------
+    bin edges and the min and max of the bins.
+    """
+    
     #nBinMat = nBinMat.astype(int)
     nSignals=int(np.shape(sampleMat)[1])
     binMax=max(nBinMat).astype(int)
@@ -61,6 +69,15 @@ def GetUniformBinEdges(sampleMat,nBinMat,pctlRange,NoDataCode):
 # In[3]:
 
 def GetEvenBinEdgesGlobal(nBinVect,minEdgeLocal,maxEdgeLocal):
+    
+    """ A helper function that finds the bin edges for a given bin count and max and min timeseries values.
+    
+    Returns
+    --------
+    the bin edges plus min and max of bin edges.
+       
+   """
+    
     nVars = np.shape(maxEdgeLocal)[0]
     minEdgeGlobal = np.nanmin(minEdgeLocal, axis = 1)
     maxEdgeGlobal = np.nanmax(maxEdgeLocal,axis = 1)
@@ -75,6 +92,10 @@ def GetEvenBinEdgesGlobal(nBinVect,minEdgeLocal,maxEdgeLocal):
 
 
 def classifySignal(sampleMat,binEdges,nBinMat,NoDataCode): 
+    
+    """ A helper function that classifies a timeseries into different bin classes (bin ids) following the binEdges and number of bins.
+    
+    """
    
     # zero is not part of a class. Consistent to the matlab version.
     
@@ -125,10 +146,16 @@ def classifySignal(sampleMat,binEdges,nBinMat,NoDataCode):
 # In[4]:
 
 
-# Takes a classified/binned data and generates a 3D count of the bin for 3D probability computation.
-
-
 def getCountMat(tupleMat,nBinMat,sX,sY,NoDataCode): # Faster version
+    
+    """ A helper function that returns bin counts.
+    
+    # Takes a classified/binned data and generates a 3D count of the bin for 3D probability computation.
+    
+    Returns
+    -------
+    the number of elements in each bin.
+    """
     
     dim1Edge = np.r_[0,np.arange(nBinMat[sX])+1.5]
     dim2Edge = np.r_[0,np.arange(nBinMat[sY])+1.5]
@@ -154,8 +181,17 @@ def getCountMat(tupleMat,nBinMat,sX,sY,NoDataCode): # Faster version
 # In[5]:
 
 
-# Takes the 3D counts and convert it to marginal and joint probabilities to generate entropy, MI and T.
+
 def GetShannonBits(C,nCounts):
+    
+    """ A helper function that computes Marginal and Joint Shannon Entropies in terms of bits (log 2), given probability matrices.
+    
+    # Takes the 3D counts and convert it to marginal and joint probabilities to generate entropy, MI and T.
+    
+    Returns
+    -------
+    a list of marginal and joint entropies
+    """
     # Get Marginal and Joint Shannon Entropies in terms of bits (log 2), given probability matrices
     eps = sys.float_info.epsilon
     
@@ -195,7 +231,11 @@ def GetShannonBits(C,nCounts):
 
 
 def ShannonBitsWrapper(classifiedData, lag, nTuples, nBinMat, lagRange, nYw, NoDataCode):
-    
+    """ A helper function that intializes the information theoretic metrics to be computed.
+    Returns
+    -------
+    a list of the initialized variables.
+    """
     
     # lagVect - sequence of lags eg. 0:36. Include 0 at first.
     # lag - lagging length. Read from lagVect[i]
@@ -268,6 +308,12 @@ def ShannonBitsWrapper(classifiedData, lag, nTuples, nBinMat, lagRange, nYw, NoD
 
 
 def entropyFunction(classifiedData,lagVect,nBinMat,NoDataCode,parallelWorkers):
+    """ A helper function that intializes the information theoretic metrics to be computed.
+    Returns
+    -------
+    a dictionary of the initialized variables.
+    """
+    
     nData,nSignals = np.shape(classifiedData)
     nLags = np.shape(lagVect)[0]    #numebr of lags [# lagVect the lag sequence with 0 at the first index]
     lagRange = [min(lagVect), max(lagVect)] # 0 must be included somewhere in lagVect
@@ -313,6 +359,19 @@ def entropyFunction(classifiedData,lagVect,nBinMat,NoDataCode,parallelWorkers):
 
 
 def createSurrogates(opts,Data,nsur): # Fourier not implimented yet
+    """ A helper function that creates a shuffled version of the time series to compute statistical significance of the information theoretic metrics.
+    
+    parameters
+    -----------
+    opts : the input specification for the information theoretic metrics.
+    Data : the time series data to be shuffled.
+    nsur : the number of shuffles to be generated.
+    
+    Returns
+    --------
+    the surrugate time series i.e., the sguffled time series.
+    """
+    
     
     Surrogates = np.ones([nsur,np.shape(Data)[0],np.shape(Data)[1]])*np.nan
     
@@ -341,16 +400,29 @@ def createSurrogates(opts,Data,nsur): # Fourier not implimented yet
 
 
 def removePeriodicMean(signalMat,period,sliderWidth,NoDataCode):
-    #signalMat is an n-column matrix where n variables are represented as a
-    #timeseries- columns are variables, rows are timeseries records
+    
+    """ A preprocessing function that computes the annomaly time series.
+    
+    Paramters
+    ---------
+    
+    signalMat : an n-column matrix where n variables are represented as a
+    timeseries- columns are variables, rows are timeseries records
 
-    #period is the length of the repeating pattern in the data- if using
-    #FluxNet data with 30 min resolution, the period is 48 or one day
+    period : the length of the repeating pattern in the data- if using
+    FluxNet data with 30 min resolution, the period is 48 or one day
 
-    # sliderWidth is the number of periods to base the anomaly on - for a five
-    # day moving anomaly, set sliderWidth to 5.
+    sliderWidth : the number of periods to base the anomaly on - for a five
+    day moving anomaly, set sliderWidth to 5.
 
-    # NoDataCode is a data value that will be ignored. 
+    NoDataCode : a data value that will be ignored. 
+    
+    Returns
+    -------
+    The anomaly time series i.e, a time series where the mean is deducted.
+       
+    """
+    
     
     signalMat[signalMat == NoDataCode] = np.nan 
     
@@ -393,6 +465,9 @@ def removePeriodicMean(signalMat,period,sliderWidth,NoDataCode):
 
 
 def preProcess(opts,Data): # Wavelet not implimented yet
+    """ A helper function that intends to perform wavelet transforms as preprocessing.
+    Not implemented. Placeholder.
+    """
     # Turn NoDataCode into NaN
     Data[Data == opts['NoDataCode']] = np.nan
 
@@ -420,6 +495,9 @@ def preProcess(opts,Data): # Wavelet not implimented yet
 
 
 def intializeOutput(nDataFiles,nVars,opts):
+    """ A helper function that declares variables.
+    """
+    
     nBins = np.transpose(opts['nBins']) # Make column vector
     nLags = np.shape(opts['lagVect'])[0]
     
