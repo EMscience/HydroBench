@@ -10,6 +10,7 @@ from holoviews import opts, dim
 from bokeh.plotting import show, output_file
 from scipy.stats import pearsonr
 hv.extension("bokeh", "matplotlib")
+from scipy import interpolate
 
 # local 
 from PN1_5_RoutineSource import *
@@ -473,7 +474,7 @@ def PredictivePerformanceSummary(observed_Q, model_Q,Log_factor=0.1):
     
     return PMT
 
-def plot_FDC(Q, title, colrShape, unit):
+def plot_FDC(Q, SlopeInterval, title, colrShape, unit):
     
     """Returns a plot of Flow Duration Curve (FDC) that relates streamflow and its exceedance probability.
     
@@ -484,6 +485,7 @@ def plot_FDC(Q, title, colrShape, unit):
     ----------
     Q : numpy array 
         Streamflow time series
+    SlopeInterval : percentage exceedance levels to compute FDC slopes e.g., [25, 45]
     title : label associated with the streamflow data. 
         
     colrShape : string indicating plot markers
@@ -491,23 +493,32 @@ def plot_FDC(Q, title, colrShape, unit):
 
     Returns
     -------
-    A flow duration curve.
+    A plot of flow duration curve.
+    Slope of the flow duration for a given exceedance interval.
 
     """
-    
-    
+        
     n = len(Q)
     sorted_array = np.sort(Q)
     
     # Reverse the sorted array
     reverse_array = sorted_array[::-1]
+    excedanceP = np.arange(1,n+1)/(n+1)
+    median_Q = np.nanmedian(Q)
+    f = interpolate.interp1d(excedanceP, reverse_array)
+    Q_atGivenSlope = [f(SlopeInterval[0]/100.0), f(SlopeInterval[1]/100.0)]
+    slope_FDC = -1.0*(Q_atGivenSlope[1] - Q_atGivenSlope[0]) / median_Q*(SlopeInterval[1]-SlopeInterval[0])
+    
+    
        
-    plt.plot(np.arange(1,n+1)/(n+1),reverse_array,colrShape,label= title)
+    plt.plot(excedanceP,reverse_array,colrShape,label= title)
     plt.xlabel('Exceedence probabilty',fontsize=20)
     plt.ylabel('Streamflow' + unit,fontsize=20)
     plt.yscale('log')
     plt.grid(linestyle = '-.')
     plt.legend()
+    
+    return slope_FDC
     
 def plotRecession(ppt, Q, dateTime, title,labelP,labeltxt, season, alpha):
     
@@ -536,6 +547,7 @@ def plotRecession(ppt, Q, dateTime, title,labelP,labeltxt, season, alpha):
     Returns
     -------
     A plot of recession curve.
+    z : the slope and intercept of the recession curve in the log-space
 
     """
     
@@ -627,6 +639,14 @@ def plotRecession(ppt, Q, dateTime, title,labelP,labeltxt, season, alpha):
     plt.ylabel(r'$\log \left( -\mathrm{\frac{dQ}{dt}}\right)$', color='k',fontsize=14)
     plt.grid(linestyle='-.')
     plt.legend(fontsize=14)
+    
+    # Fitting a linear line to recession
+    x = np.log(qs)
+    y = np.log(-1*dqs)
+    z = np.polyfit(x, y, 1)
+    
+    return z
+    
     
     
 def AnnualRunoffCoefficient(table,StrtHydroYear,EndHydroYear,PrecipName,RunoffName):
@@ -894,6 +914,8 @@ def plot_confusion_matrix(df_confusion, bns, ticks):
     cb.set_label(label='Fraction of Observed',fontsize= 12)
     plt.show()
     
+   
+    
 def plotHist(SquMat,bns,sz, title=['Observed Q', 'Model Q']):
     
     """Returns a histogram plot of the square matrix that relates the counts of simulated and observed binnin based on the function squareConfusionMatix().
@@ -934,9 +956,10 @@ def plotHist(SquMat,bns,sz, title=['Observed Q', 'Model Q']):
     ax.legend( (Observed[0], Model[0]), title )
     plt.show()
     
-def timeLinkedFDC(obs, mod, binSize, Flag, FigSize1, FigSize2, NameObserved, NameModel,ticks):
+def timeLinkedFDC(obs, diag, mod, binSize, Flag, FigSize1, FigSize2, NameObserved, NameModel,ticks):
     
     """Returns a plot of the time linked flow duration curve.
+    and the fraction of modeled data in the diagonal
     
     .. ref:: 
     
@@ -959,6 +982,7 @@ def timeLinkedFDC(obs, mod, binSize, Flag, FigSize1, FigSize2, NameObserved, Nam
     Returns
     -------
     Returns a plot of the time linked flow duration curve.
+    Fraction of data in the diagonal.
 
     """
     
@@ -980,5 +1004,16 @@ def timeLinkedFDC(obs, mod, binSize, Flag, FigSize1, FigSize2, NameObserved, Nam
     plot_confusion_matrix(df_conf_norm,bns,ticks)
     
     plotHist(SquMat,bns,FigSize2,[str(NameObserved),str(NameModel)])
-
     
+    if diag == 0:
+        DiagElement = np.diagonal(df_conf_norm,diag) # Only the main diagonal
+        RatioDiag = np.nansum(DiagElement)/np.nansum(df_conf_norm)
+    else:
+        dimn = np.arange(-1*diag,diag+1)
+        Diagsum = np.ones(np.shape(dimn))*np.nan
+        
+        for i in dimn:
+            Diagsum[i] = np.nansum(np.diagonal(df_conf_norm,i))# sum of diagonal elements
+        RatioDiag = np.nansum(Diagsum)/np.nansum(df_conf_norm)
+
+    return RatioDiag
