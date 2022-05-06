@@ -22,6 +22,8 @@ NHM-PRMS has two model products covering the CONUS - the calibrated and uncalibr
 Out of the CONUS wide NHM-PRMS products, this notebook focused on the NHM-PRMS product at the 
 [Cedar River, WA](https://waterdata.usgs.gov/nwis/nwismap/?site_no=12115000&agency_cd=USGS). 
 
+Full online documentation can be find at this [link](https://emscience.github.io/HydroBenchJBook/HydroBenchIntroduction.html)
+
 ### File Description
 
 #### Scripts
