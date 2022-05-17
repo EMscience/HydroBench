@@ -26,7 +26,7 @@ def plotDoYBounds(Df1Av, Df1Max, Df1Min, Df2Av, Df2Max, Df2Min, VarName, ylabel,
     
     '''plots day of the year averages along with its bounds for a given flux/store variable.
     
-    Parameters
+    Parameters 
     ----------
     Df1Av - data frame contaning the day of the year averages of model 1.
     Df1Max - data frame contaning the day of the year maximums of model 1.
