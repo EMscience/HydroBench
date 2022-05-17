@@ -21,6 +21,73 @@ from ProcessNetwork1_5MainRoutine_sourceCode import *
 pathData = (r"./Data/")
 pathResult = (r"./Result/")
 
+
+def plotDoYBounds(Df1Av, Df1Max, Df1Min, Df2Av, Df2Max, Df2Min, VarName, ylabel, label1, label2):
+    
+    '''plots day of the year averages along with its bounds for a given flux/store variable.
+    
+    Parameters
+    ----------
+    Df1Av - data frame contaning the day of the year averages of model 1.
+    Df1Max - data frame contaning the day of the year maximums of model 1.
+    Df1Min - data frame contaning the day of the year minimums of model 1.
+    
+    Df2Av - data frame contaning the day of the year averages of model 2.
+    Df2Max - data frame contaning the day of the year maximums of model 2.
+    Df2Min - data frame contaning the day of the year minimums of model 2.
+    
+    VarName - the name of the flux or stor variable in Df1 and Df2 dataframes
+    ylabel - plotting name for yaxis
+    label1 - name of model 1
+    label2 - name of model 2
+    
+    Returns
+    --------
+    A filled plot showing max, min and average across the day of a year.
+    
+    '''
+    DimDt = np.shape(Df1Av)[0]
+    
+    # Uncalibrated
+    plt.figure(figsize=[7,5])
+    plt.subplot(2,1,1)
+    
+    plt.plot(np.arange(DimDt), Df1Av[VarName],'b-')
+    plt.fill_between(np.arange(DimDt), Df1Min[VarName], Df1Max[VarName],
+                     facecolor="blue",  # Fill color
+                     color='blue',      # Outline color
+                     alpha=0.8,         # Transparency
+                     label = label1)
+    plt.xticks(np.arange(0,DimDt,31),['Jan','Feb','Mar','Apr', 'May','Jun', 'Jul', 'Aug', 'Sep', 'Oct','Nov','Dec'],
+              rotation=90, fontsize=10)
+    plt.yticks(fontsize=10)
+    
+    plt.ylabel(ylabel,fontsize=10)
+    plt.legend()
+
+    plt.grid(linestyle='-.')
+    
+    # Calibrated
+    #plt.subplot(2,1,2)
+    
+    plt.plot(np.arange(DimDt), Df2Av[VarName],'r-')
+    plt.fill_between(np.arange(DimDt), Df2Min[VarName], Df2Max[VarName],
+                     facecolor="red",  # Fill color
+                     color='red',      # Outline color
+                     alpha=0.5,         # Transparency
+                     label = label2)
+    plt.xticks(np.arange(0,DimDt,31),['Jan','Feb','Mar','Apr', 'May','Jun', 'Jul', 'Aug', 'Sep', 'Oct','Nov','Dec'],
+              rotation=90, fontsize=10)
+    plt.yticks(fontsize=10)
+    
+    plt.ylabel(ylabel,fontsize=10)
+    plt.legend(fontsize= 10)
+
+    plt.grid(linestyle='-.')
+    
+    plt.subplots_adjust(wspace=0.5,hspace=0.1)
+    
+
 def CouplingAndInfoFlowPlot(optsHJ,popts):
     
     """Computes the information flow metrics and plots source to sink information flow test statistics e.g., TE along with its statistical significance level at each lag. 
