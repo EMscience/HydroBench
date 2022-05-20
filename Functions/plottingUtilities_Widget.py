@@ -22,6 +22,63 @@ pathData = (r"./Data/")
 pathResult = (r"./Result/")
 
 
+def plotHydroMonthlyHydroClimate(MonthlyAverage,Area):
+    
+    ''' Generates a plot of Longterm averaged monthly observed hydrometeorological variables Precipitation,
+     Streamflow and Air temperature.
+     
+     Parammeters
+     -------------
+     MonthlyAverage - dataframe with containg longterm monthly averages.
+     Area - catchment area in square ft.
+     
+    Returns
+    ------------
+    A time series plot of Precipitation, Streamflow and Air temperature.
+    '''
+        
+   
+    T = 24*60*60
+    ft_to_in = 12
+    labels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+    x = np.arange(len(labels))  # the label locations
+
+    width = 0.35  # the width of the bars
+
+    fig, ax = plt.subplots(figsize=[9,7])
+    rects1 = ax.bar(x - width/2, MonthlyAverage.observed_Q*(T/Area)*(30*ft_to_in), width, color='r', label='Streamflow')
+    rects2 = ax.bar(x + width/2, MonthlyAverage.basin_ppt*30, width, color='k', label='Precipitation')
+
+    for label in (ax.get_xticklabels() + ax.get_yticklabels()):
+        label.set_fontsize(12)
+
+    # Add some text for labels, title and custom x-axis tick labels, etc.
+    ax.set_ylabel('Streamflow and Precipitation (in)',fontsize=14)
+    ax.set_xlabel('Months', fontsize=14)
+    plt.xticks(rotation=90, horizontalalignment="center")
+    #ax.set_title('HJ Andrews')
+    ax.set_xticks(x)
+    ax.set_xticklabels(labels,fontsize=12)
+
+
+    axes2 = plt.twinx()
+
+    for label in (axes2.get_xticklabels() + axes2.get_yticklabels()):
+        label.set_fontsize(12)
+
+    axes2.plot(x,0.5*(MonthlyAverage.basin_tmin + MonthlyAverage.basin_tmax) , marker='o', color='b', label='Air Temperature')
+    #axes2.set_ylim(-1, 1)
+    axes2.set_ylabel('Air temperature ($^o$F)', color='b',fontsize=14)
+
+
+    ax.legend(loc='center', bbox_to_anchor=(0.57, 0.6),frameon=False,fontsize=12)
+    plt.legend(loc='center', bbox_to_anchor=(0.594, 0.52),frameon=False,fontsize=12)
+
+    fig.savefig("./Result/CatchmentClimate.jpg", dpi=300,bbox_inches='tight')
+
+    plt.show()
+    
+    
 def plotDoYBounds(Df1Av, Df1Max, Df1Min, Df2Av, Df2Max, Df2Min, VarName, ylabel, label1, label2):
     
     '''plots day of the year averages along with its bounds for a given flux/store variable.
@@ -49,7 +106,7 @@ def plotDoYBounds(Df1Av, Df1Max, Df1Min, Df2Av, Df2Max, Df2Min, VarName, ylabel,
     DimDt = np.shape(Df1Av)[0]
     
     # Uncalibrated
-    plt.figure(figsize=[7,5])
+    plt.figure(figsize=[7,5],dpi=300)
     plt.subplot(2,1,1)
     
     plt.plot(np.arange(DimDt), Df1Av[VarName],'b-')
@@ -86,6 +143,9 @@ def plotDoYBounds(Df1Av, Df1Max, Df1Min, Df2Av, Df2Max, Df2Min, VarName, ylabel,
     plt.grid(linestyle='-.')
     
     plt.subplots_adjust(wspace=0.5,hspace=0.1)
+    
+    #fig.set_size_inches(7,5)
+    #plt.savefig("sample.jpg", dpi=300)
     
 
 def CouplingAndInfoFlowPlot(optsHJ,popts):
@@ -431,18 +491,19 @@ def PredictivePerformance(ModelVersion, PerformanceMetrics, MetricTransformation
         fig, ax1 = plt.subplots(figsize=[15,5])
 
         ax2 = ax1.twinx()
-        ax1.plot(observed_Q, 'k', label= 'Observed stream flow')
-        ax1.plot(model_Q, 'r', label = 'Model stream flow')
+        ax1.plot(observed_Q, 'k', label= 'Observed streamflow')
+        ax1.plot(model_Q, 'r', label = 'Model streamflow')
         
         ax2.plot(CalibMat[:,1], 'b-',label = 'Basin precipitation estimate')
         ax2.invert_yaxis()
 
         ax1.set_xlabel('Days Since January 1980')
-        ax1.set_ylabel('Stream flow (cfs)',color='k')
+        ax1.set_ylabel('Streamflow (cfs)',color='k')
         ax2.set_ylabel('Precipitation (in)', color='b')
         ax1.legend(loc='center', bbox_to_anchor=(0.85, 1.2))
         ax2.legend(loc='center', bbox_to_anchor=(0.5, 1.2))
         ax1.grid(linestyle='-.')
+        fig.savefig("./Result/PredictivePerformance.jpg", dpi=300,bbox_inches='tight')
         
     if ModelVersion == 'Uncalibrated':
         UnCalibMat = np.loadtxt(pathData + nameFunCalib,delimiter='\t') # cross validate with matlab
@@ -452,18 +513,19 @@ def PredictivePerformance(ModelVersion, PerformanceMetrics, MetricTransformation
         fig, ax1 = plt.subplots(figsize=[15,5])
 
         ax2 = ax1.twinx()
-        ax1.plot(observed_Q, 'k', label= 'Observed Stream flow')
-        ax1.plot(model_Q, 'r', label = 'Model Stream flow')
+        ax1.plot(observed_Q, 'k', label= 'Observed Streamflow')
+        ax1.plot(model_Q, 'r', label = 'Model Streamflow')
         
         ax2.plot(UnCalibMat[:,1], 'b-', label = 'Basin precipitation estimate')
         ax2.invert_yaxis()
 
         ax1.set_xlabel('Days Since January 1980')
-        ax1.set_ylabel('Stream flow (cfs)',color='k')
+        ax1.set_ylabel('Streamflow (cfs)',color='k')
         ax2.set_ylabel('Precipitation (in)', color='b')
         ax1.legend(loc='center', bbox_to_anchor=(0.85, 1.2))
         ax2.legend(loc='center', bbox_to_anchor=(0.5, 1.2))
         ax1.grid(linestyle='-.')
+        fig.savefig("./Result/PredictivePerformance.jpg", dpi=300,bbox_inches='tight')
 
       
     if MetricTransformation == 'Untransformed':
@@ -965,8 +1027,8 @@ def plot_confusion_matrix(df_confusion, bns, ticks):
     plt.xticks(tick_marksx, np.round(bns,2), rotation=90,fontsize=10)
     plt.yticks(tick_marksy, np.round(bns,2),fontsize=10)
     plt.tight_layout()
-    plt.ylabel(df_confusion.index.name,fontsize=14)
-    plt.xlabel(df_confusion.columns.name,fontsize=14)
+    plt.ylabel(df_confusion.index.name,fontsize=10)
+    plt.xlabel(df_confusion.columns.name,fontsize=10)
     plt.grid()
     
     ax = plt.gca()
@@ -979,7 +1041,7 @@ def plot_confusion_matrix(df_confusion, bns, ticks):
     cax = divider.append_axes("right", size=width, pad=pad)
     cb=plt.colorbar(im, cax=cax,ticks=ticks)
     cb.set_label(label='Fraction of Observed',fontsize= 12)
-    plt.show()
+    #plt.show()
     
    
     
@@ -1014,14 +1076,14 @@ def plotHist(SquMat,bns,sz, title=['Observed Q', 'Model Q']):
     xTickMarks = np.round(bnsPD,2)
     ax.set_xticks(ind+width/2)
     xtickNames = ax.set_xticklabels(xTickMarks)
-    plt.setp(xtickNames, rotation=90, fontsize=10)
-    plt.yticks(fontsize=10)
+    plt.setp(xtickNames, rotation=90, fontsize=8)
+    plt.yticks(fontsize=8)
     ax.yaxis.grid(linestyle='-.')
     ax.set_xlabel('Median value')
     ax.set_ylabel('Frequency')
     ## add a legend
     ax.legend( (Observed[0], Model[0]), title )
-    plt.show()
+    #plt.show()
     
 def timeLinkedFDC(obs, diag, mod, binSize, Flag, FigSize1, FigSize2, NameObserved, NameModel,ticks):
     
@@ -1068,8 +1130,9 @@ def timeLinkedFDC(obs, diag, mod, binSize, Flag, FigSize1, FigSize2, NameObserve
     # Step -4 Normalize the matrix and plot
     df_conf_norm = SquMat.loc[:,SquMat.columns].div(SquMat.sum(axis=1), axis=0)
     plt.figure(figsize=FigSize1)
-    plot_confusion_matrix(df_conf_norm,bns,ticks)
     
+    plot_confusion_matrix(df_conf_norm,bns,ticks)
+   
     plotHist(SquMat,bns,FigSize2,[str(NameObserved),str(NameModel)])
     
     if diag == 0:
