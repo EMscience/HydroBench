@@ -74,7 +74,7 @@ def plotHydroMonthlyHydroClimate(MonthlyAverage,Area):
     ax.legend(loc='center', bbox_to_anchor=(0.57, 0.6),frameon=False,fontsize=12)
     plt.legend(loc='center', bbox_to_anchor=(0.594, 0.52),frameon=False,fontsize=12)
 
-    fig.savefig("./Result/CatchmentClimate.jpg", dpi=300,bbox_inches='tight')
+    plt.savefig("./Result/CatchmentCharacteristics.jpg", dpi=300,bbox_inches='tight')
 
     plt.show()
     
@@ -1147,3 +1147,48 @@ def timeLinkedFDC(obs, diag, mod, binSize, Flag, FigSize1, FigSize2, NameObserve
         RatioDiag = np.nansum(Diagsum)/np.nansum(df_conf_norm)
 
     return RatioDiag
+
+
+def generateSquareMatrix(R,optLag,optsHJ,modelVersion):
+    
+    """Generates square matrix for chord plots.
+    
+    parameters
+    -----------
+    R - 
+    optLag -
+    optsHJ - 
+    modelVersion -
+    
+    Returns
+    ---------
+    A dataframe that is ready to be used in chord plots.
+    """
+    
+    CalTR = R['TR'][0,optLag,:,:] # 0 file number, lags, from, to
+    CalibChord = pd.DataFrame(data=CalTR, columns=optsHJ['varNames'], index=optsHJ['varNames'])
+    
+    # Excluding variables from PN plots.
+    dfCal = CalibChord.drop(columns=['observed_Q','basin_potet'],index=['observed_Q','basin_potet'], axis=[0,1]) # 'observed_Q'
+    
+    # Set the diagonals to zero for the chord plot so that there is no self TE
+    np.fill_diagonal(dfCal.values, 0) # no self TE
+    
+    # Rename Variable names for better plotting
+    dfCal.columns = ['Precipitation','Min Temperature','Max Temperature','Streamflow','Soil Moisture','Snowmelt','Actual ET']
+    dfCal.index = ['Precipitation','Min Temperature','Max Temperature','Streamflow','Soil Moisture','Snowmelt','Actual ET']
+   
+    # set exceptions based on physical principles
+    dfCal.loc[:,'Min Temperature']=int(0)
+    dfCal.loc[:,'Max Temperature']=int(0)
+    dfCal.loc[:,'Precipitation']=int(0)
+    dfCal.loc[('Streamflow'),:]=int(0)
+    
+    dfCal.loc[('Actual ET'),('Streamflow','Snowmelt')]=int(0) # set all to 0?????
+    #dfCal.loc['Potential ET',('Streamflow','Snow melt')]=int(0)
+    
+    dfCal.loc['Soil Moisture','Snowmelt']=int(0)
+    dfCal.loc['Precipitation',('Actual ET')]=int(0)
+    dfCal.loc['Snowmelt',('Actual ET','Soil Moisture')]=int(0)
+    
+    return dfCal
