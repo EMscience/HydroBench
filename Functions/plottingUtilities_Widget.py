@@ -1155,10 +1155,10 @@ def generateSquareMatrix(R,optLag,optsHJ,modelVersion):
     
     parameters
     -----------
-    R - 
-    optLag -
-    optsHJ - 
-    modelVersion -
+    R - A dictionary/Pickle Contating the information-theory (IT) outputs.
+    optLag - The lag time of interaction.  
+    optsHJ - The variable/parameter description of R (the IT outpus) 
+    modelVersion - the name of the model being processed
     
     Returns
     ---------
