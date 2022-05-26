@@ -10,4 +10,4 @@ numcodecs
 zarr
 xarray
 termcolor
-mpl-chord-diagram
+mpl-chord-diagram==0.3.2
