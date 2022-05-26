@@ -1013,8 +1013,8 @@ def plot_confusion_matrix(df_confusion, bns, ticks):
     
     plt.plot(range(len(bns)),'k-.')
     #plt.title(title)
-    tick_marksx = np.arange(len(df_confusion.columns))
-    tick_marksy = np.arange(len(df_confusion.index))
+    tick_marksx = np.arange(len(bns))
+    tick_marksy = np.arange(len(bns))
         
 #     plt.xticks(tick_marksx, df_confusion.columns, rotation=45)
 #     plt.yticks(tick_marksy, df_confusion.index)
@@ -1068,7 +1068,7 @@ def plotHist(SquMat,bns,sz, title=['Observed Q', 'Model Q']):
     bnsPD = bns
     Observed = ax.bar(ind, SquMat.sum(axis=1), width,color='black',)
     Model = ax.bar(ind+width, SquMat.sum(axis=0), width,color='red')
-    xTickMarks = np.round(bnsPD,2)
+    xTickMarks = np.round(bnsPD[:-1],2)
     ax.set_xticks(ind+width/2)
     xtickNames = ax.set_xticklabels(xTickMarks)
     plt.setp(xtickNames, rotation=90, fontsize=8)
