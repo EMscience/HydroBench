@@ -14,4 +14,4 @@ dependencies:
   - zarr
   - xarray
   - termcolor
-  - mpl_chord_diagram
+  - mpl-chord-diagram
