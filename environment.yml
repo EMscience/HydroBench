@@ -12,8 +12,6 @@ dependencies:
   - tqdm
   - numcodecs
   - zarr
-  - holoviews
-  - bokeh
   - xarray
   - termcolor
   - mpl_chord_diagram
