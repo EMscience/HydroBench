@@ -16,4 +16,3 @@ dependencies:
   - bokeh
   - xarray
   - termcolor
-  - mpl_chord_diagram
