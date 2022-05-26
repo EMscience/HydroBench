@@ -4,12 +4,7 @@ import datetime as dt
 import matplotlib.pyplot as plt
 from termcolor import colored
 from sklearn.metrics import r2_score
-
-import holoviews as hv
-from holoviews import opts, dim
-from bokeh.plotting import show, output_file
 from scipy.stats import pearsonr
-hv.extension("bokeh", "matplotlib")
 from scipy import interpolate
 
 # local 
