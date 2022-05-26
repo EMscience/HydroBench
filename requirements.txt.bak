@@ -1,4 +1,4 @@
-python==3.8
+Python==3.8
 numpy
 scipy
 matplotlib
