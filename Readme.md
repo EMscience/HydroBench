@@ -49,8 +49,8 @@ For a full online documentation, please refer to this [link](https://emscience.g
 - Contains local routines 
 
 	- plottingUtilities_Widget.py -- contains the interactive widget plot utilities for the traditional and hydrological signatures
-	- PN1_5_RoutineSource.py -- contains utilities of the main info-flow routines
-	- ProcessNetwork1_5MainRoutine_sourceCode.py -- contains the main info-flow routines
+	- ProcessNetwork1_5MainRoutine_sourceCode.py -- contains the main information-theoretic routines
+	- PN1_5_RoutineSource.py -- contains utilities supporting the main information-theoretic routines
 >>
                                =============[********]============== 
 \
