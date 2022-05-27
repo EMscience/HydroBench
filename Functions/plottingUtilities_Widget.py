@@ -694,14 +694,14 @@ def plotRecession(ppt, Q, dateTime, title,labelP,labeltxt, season, alpha):
         # Do not loop beyond the 2016 water year, which starts in 2015
         if year==years[-1]:
             continue
-        if season == 'Winter':
+        if season == 'Wet':
             
             # Winter month recessions
             startdate = '10-' + str(year)
             enddate = '3-' + str(year+1)
             rain = np.array(ppt.loc[startdate:enddate])
             runoff = np.array(Q.loc[startdate:enddate])
-        elif season == 'Summer':
+        elif season == 'Dry':
             # Summer month recessions
             startdate = '4-' + str(year)
             enddate = '9-' + str(year)
@@ -759,7 +759,7 @@ def plotRecession(ppt, Q, dateTime, title,labelP,labeltxt, season, alpha):
     #plt.scatter(np.log(qs),np.log(-1*dqs), label=labeltxt,alpha=alpha)
     
     plt.xlabel('log(Q)',fontsize=14)
-    plt.title(season + ' ' + title ,fontsize=14)#12
+    plt.title(season + ' ' + 'Season' + ' ' + title ,fontsize=14)#12
     plt.ylabel(r'$\log \left( -\mathrm{\frac{dQ}{dt}}\right)$', color='k',fontsize=14)
     plt.grid(linestyle='-.')
     plt.legend(fontsize=14)
