@@ -22,7 +22,7 @@ NHM-PRMS has two model products covering the CONUS - the calibrated and uncalibr
 Out of the CONUS wide NHM-PRMS products, this notebook focused on the NHM-PRMS product at the 
 [Cedar River, WA](https://waterdata.usgs.gov/nwis/nwismap/?site_no=12115000&agency_cd=USGS). 
 
-Full online documentation can be find at this [link](https://emscience.github.io/HydroBenchJBook/HydroBenchIntroduction.html)
+For a full online documentation refer to this [link](https://emscience.github.io/HydroBenchJBook/HydroBenchIntroduction.html)
 
 ### File Description
 
@@ -33,8 +33,9 @@ Full online documentation can be find at this [link](https://emscience.github.io
 	The notebook demonstrates:
 	1. Traditional model performance efficiency measure using NSE, KGE, PBIAS and r along with their log transformations.
 	2. Hydrological signature measures including runoff coefficient, flow duration, time linked flow duration and recession curves
-	3.1 Tradeoffs between predictive and functional performance
-	3.2 Info-flow based model internal functions using process networks (PN)
+	3. Information-theoretic based performance metrics
+	3.1 Tradeoffs between predictive and functional performances
+	3.2 Quantification of model internal functions using process networks (PN)
 
 
 #### Data
