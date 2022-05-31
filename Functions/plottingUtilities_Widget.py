@@ -17,7 +17,7 @@ pathData = (r"./Data/")
 pathResult = (r"./Result/")
 
 
-def plotHydroMonthlyHydroClimate(MonthlyAverage,Area):
+def plotMonthlyHydroClimate(MonthlyAverage,Area):
     
     ''' Generates a plot of Longterm averaged monthly observed hydrometeorological variables Precipitation,
      Streamflow and Air temperature.
@@ -40,7 +40,7 @@ def plotHydroMonthlyHydroClimate(MonthlyAverage,Area):
 
     width = 0.35  # the width of the bars
 
-    fig, ax = plt.subplots(figsize=[9,7])
+    fig, ax = plt.subplots(figsize=[7,5])
     rects1 = ax.bar(x - width/2, MonthlyAverage.observed_Q*(T/Area)*(30*ft_to_in), width, color='r', label='Streamflow')
     rects2 = ax.bar(x + width/2, MonthlyAverage.basin_ppt*30, width, color='k', label='Precipitation')
 
