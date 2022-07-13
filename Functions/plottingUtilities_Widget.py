@@ -997,7 +997,7 @@ def plot_confusion_matrix(df_confusion, bns, ticks):
     ----------
     df_confusion : a square matrix with counts of model bin id that in the same bin class as observed data 
     bns : bin edges.  
-    ticks : markers for the heatmap plot
+    ticks : markers for the heatmap color bar
         
     Returns
     ---------
@@ -1008,7 +1008,8 @@ def plot_confusion_matrix(df_confusion, bns, ticks):
     extent = (0, df_confusion.shape[1], df_confusion.shape[0], 0)
     df_confusion2 = np.ma.masked_where(df_confusion == 0.0, df_confusion)
     cmap.set_bad(color='white')
-    im=plt.imshow(df_confusion2, cmap=cmap,extent=extent) # imshow
+    im=plt.imshow(df_confusion2, cmap=cmap,extent=extent,
+                 vmin=0, vmax=1.0) # imshow
       
     
     plt.plot(range(len(bns)),'k-.')
@@ -1036,6 +1037,7 @@ def plot_confusion_matrix(df_confusion, bns, ticks):
     cax = divider.append_axes("right", size=width, pad=pad)
     cb=plt.colorbar(im, cax=cax,ticks=ticks)
     cb.set_label(label='Fraction of Observed',fontsize= 12)
+    #plt.savefig("./Result/T_FDCUncalibrated_Q.jpg", dpi=300,bbox_inches='tight')
     #plt.show()
     
    
@@ -1078,6 +1080,7 @@ def plotHist(SquMat,bns,sz, title=['Observed Q', 'Model Q']):
     ax.set_ylabel('Frequency')
     ## add a legend
     ax.legend( (Observed[0], Model[0]), title )
+    
     #plt.show()
     
 def timeLinkedFDC(obs, diag, mod, binSize, Flag, FigSize1, FigSize2, NameObserved, NameModel,ticks):
@@ -1101,7 +1104,7 @@ def timeLinkedFDC(obs, diag, mod, binSize, Flag, FigSize1, FigSize2, NameObserve
     FigSize2 : figure dimension for the histogram plot.
     NameObserved : Label of the observed streamflow
     NameModel : label for the model simulated streamflow
-    ticks : 
+    ticks : color bar ticks
     
     Returns
     -------
